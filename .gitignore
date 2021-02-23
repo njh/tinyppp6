@@ -12,3 +12,6 @@
 
 # Generated files
 tinyppp6
+
+tests/check_*.cpp
+tests/check_*.cmd

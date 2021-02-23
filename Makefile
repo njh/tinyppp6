@@ -12,5 +12,9 @@ tinyppp6: tinyppp6.o frame.o fcs.o lcp.o
 
 clean:
 	rm -f *.o tinyppp6
-	
-.PHONY: all clean
+	make -C tests clean
+
+test:
+	make -C tests test
+
+.PHONY: all clean test
