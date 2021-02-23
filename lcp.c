@@ -22,7 +22,7 @@ void lcp_reply_conf_req(FILE *stream, uint8_t *buffer, int len)
     fprintf(stderr, "tinyppp6 send: Sending Conf-Ack\n");
 
     // Change LCP code to from ConfReq to ConfAck
-    buffer[4] = 0x02;
+    buffer[4] = LCP_CONF_ACK;
 
     write_frame(stream, buffer, len);
 }
@@ -35,48 +35,48 @@ void lcp_handle_frame(uint8_t *buffer, int len)
     fprintf(stderr, "tinyppp6 recv: Link Control Protocol (%d, len=%d, id=%x)\n", code, len, id);
 
     switch (code) {
-        case 1: // Configure-Request
+        case LCP_CONF_REQ:
             fprintf(stderr, "tinyppp6 recv: LCP Configure-Request\n");
             lcp_reply_conf_req(stdout, buffer, len);
             break;
 
-        case 2: // Configure-Ack
+        case LCP_CONF_ACK:
             fprintf(stderr, "tinyppp6 recv: LCP Configure-Ack\n");
             break;
 
-        case 3: // Configure-Nak
+        case LCP_CONF_NACK:
             fprintf(stderr, "tinyppp6 recv: LCP Configure-Nak\n");
             break;
 
-        case 4: // Configure-Reject
+        case LCP_CONF_REJ:
             fprintf(stderr, "tinyppp6 recv: LCP Configure-Reject\n");
             break;
 
-        case 5: // Terminate-Request
+        case LCP_TERM_REQ:
             fprintf(stderr, "tinyppp6 recv: LCP Terminate-Request\n");
             break;
 
-        case 6: // Terminate-Ack
+        case LCP_TERM_ACK:
             fprintf(stderr, "tinyppp6 recv: LCP Terminate-Ack\n");
             break;
 
-        case 7: // Code-Reject
+        case LCP_CODE_REJ:
             fprintf(stderr, "tinyppp6 recv: LCP Code-Reject\n");
             break;
 
-        case 8: // Protocol-Reject
+        case LCP_PROTO_REJ:
             fprintf(stderr, "tinyppp6 recv: LCP Protocol-Reject\n");
             break;
 
-        case 9: // Echo-Request
+        case LCP_ECHO_REQ:
             fprintf(stderr, "tinyppp6 recv: LCP Echo-Request\n");
             break;
 
-        case 10: // Echo-Reply
+        case LCP_ECHO_REPLY:
             fprintf(stderr, "tinyppp6 recv: LCP Echo-Reply\n");
             break;
 
-        case 11: // Discard-Request
+        case LCP_DISCARD_REQ:
             fprintf(stderr, "tinyppp6 recv: LCP Discard-Request\n");
             break;
 
@@ -97,7 +97,7 @@ void lcp_send_conf_req(FILE *stream)
 
     buffer[2] = 0xc0;  // LCP Protocol
     buffer[3] = 0x21;
-    buffer[4] = 0x01;  // LCP code
+    buffer[4] = LCP_CODE_REJ;
     buffer[5] = 0x01;  // LCP id
     buffer[6] = 0;     // LCP length
     buffer[7] = 16;    // LCP length
