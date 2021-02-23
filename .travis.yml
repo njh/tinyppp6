@@ -1,0 +1,12 @@
+language: c
+
+addons:
+  apt:
+    packages:
+      - pkg-config
+      - check
+    update: true
+
+script:
+  - make
+  - make test
