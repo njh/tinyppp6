@@ -9,7 +9,8 @@ uint16_t calculate_fcs16(const uint8_t *cp, int len);
 
 // frame.c
 int hdlc_read_frame(FILE *stream, uint8_t *buffer);
-int hdlc_write_frame(FILE *stream, uint8_t *buffer, int buffer_len);
+int hdlc_check_frame(const uint8_t *buffer, int len);
+int hdlc_write_frame(FILE *stream, const uint8_t *buffer, int len);
 
 // lcp.c
 void lcp_init();

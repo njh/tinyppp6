@@ -7,39 +7,6 @@
 
 void handle_frame(uint8_t *buffer, int len)
 {
-    for (int i = 0; i < len; i++) {
-        fprintf(stderr, "%2.2x ", buffer[i]);
-    }
-    fprintf(stderr, "\n");
-
-    if (len < 4) {
-        fprintf(stderr, "Warning: Ignoring frame that is less than 4 bytes\n");
-        return;
-    }
-
-    // Address
-    if (buffer[0] != 0xff) {
-        fprintf(stderr, "Warning: HDLC address is not 0xFF\n");
-        // FIXME: ignore frame
-        return;
-    }
-
-    // Control Field
-    if (buffer[1] != 0x03) {
-        fprintf(stderr, "Warning: HDLC control field is not 0x03\n");
-        // FIXME: ignore frame
-        return;
-    }
-
-    // Check FCS (checksum)
-    uint16_t fcs = calculate_fcs16(buffer, len - 2);
-    if ((fcs & 0xff) != buffer[len - 2] || ((fcs >> 8) & 0xff) != buffer[len - 1]) {
-        fprintf(stderr, "Frame Check Sequence error\n");
-        fprintf(stderr, "  Expected: 0x%2.2x%2.2x\n", buffer[len - 2], buffer[len - 1]);
-        fprintf(stderr, "  Actual: 0x%2.2x%2.2x\n", fcs & 0xff, (fcs >> 8) & 0xff);
-        return;
-    }
-
     // FIXME: how do we detect 1-byte protocol number?
     uint16_t protocol = (buffer[2] << 8) | buffer[3];
     switch (protocol) {
@@ -83,7 +50,7 @@ int main()
     while (!feof(stream)) {
         uint8_t buffer[2048];
         int len = hdlc_read_frame(stream, buffer);
-        if (len > 0) {
+        if (len > 0 && hdlc_check_frame(buffer, len)) {
             handle_frame(buffer, len);
         }
     }

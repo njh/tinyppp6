@@ -52,6 +52,38 @@ int hdlc_read_frame(FILE *stream, uint8_t *buffer)
     return pos;
 }
 
+int hdlc_check_frame(const uint8_t *buffer, int len)
+{
+    if (len < 8) {
+        fprintf(stderr, "Warning: Ignoring frame that is less than 8 bytes\n");
+        return 0;
+    }
+
+    // Address
+    if (buffer[0] != 0xff) {
+        fprintf(stderr, "Warning: HDLC address is not 0xFF\n");
+        return 0;
+    }
+
+    // Control Field
+    if (buffer[1] != 0x03) {
+        fprintf(stderr, "Warning: HDLC control field is not 0x03\n");
+        return 0;
+    }
+
+    // Check FCS (checksum)
+    uint16_t fcs = calculate_fcs16(buffer, len - 2);
+    if ((fcs & 0xff) != buffer[len - 2] || ((fcs >> 8) & 0xff) != buffer[len - 1]) {
+        fprintf(stderr, "Frame Check Sequence error\n");
+        fprintf(stderr, "  Expected: 0x%2.2x%2.2x\n", buffer[len - 2], buffer[len - 1]);
+        fprintf(stderr, "  Actual: 0x%2.2x%2.2x\n", fcs & 0xff, (fcs >> 8) & 0xff);
+        return 0;
+    }
+
+    // Valid
+    return 1;
+}
+
 void hdlc_write_frame_byte(FILE *stream, uint8_t chr)
 {
     if (chr == 0x7d || chr == 0x7e || chr < 0x20) {
@@ -62,7 +94,7 @@ void hdlc_write_frame_byte(FILE *stream, uint8_t chr)
     }
 }
 
-int hdlc_write_frame(FILE *stream, uint8_t *buffer, int len)
+int hdlc_write_frame(FILE *stream, const uint8_t *buffer, int len)
 {
     uint16_t fcs;
 
