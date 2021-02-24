@@ -25,7 +25,9 @@ int hdlc_read_frame(FILE *stream, uint8_t *buffer)
                 continue;
             } else {
                 // End of frame
-                // FIXME: push back to file using ungetc() - for case where there is a single 0x7e between frames?
+                // Push back to IO stream, so that we know we are at the start of a
+                // function when we read the next frame
+                ungetc(0x7e, stream);
                 break;
             }
         }
