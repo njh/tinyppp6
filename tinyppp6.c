@@ -82,7 +82,7 @@ int main()
 
     while (!feof(stream)) {
         uint8_t buffer[2048];
-        int len = read_frame(stream, buffer);
+        int len = hdlc_read_frame(stream, buffer);
         if (len > 0) {
             handle_frame(buffer, len);
         }

@@ -8,7 +8,7 @@
 // https://tools.ietf.org/html/rfc1662
 
 
-int read_frame(FILE *stream, uint8_t *buffer)
+int hdlc_read_frame(FILE *stream, uint8_t *buffer)
 {
     int pos = 0;
     int in_escape = 0;
@@ -44,7 +44,7 @@ int read_frame(FILE *stream, uint8_t *buffer)
                 buffer[pos++] = chr;
             }
         } else {
-            fprintf(stderr, "Hunting for start of frame");
+            fprintf(stderr, "Hunting for start of frame but got: %2.2x\n", chr);
         }
 
     } while (1);
@@ -52,7 +52,7 @@ int read_frame(FILE *stream, uint8_t *buffer)
     return pos;
 }
 
-void write_frame_byte(FILE *stream, uint8_t chr)
+void hdlc_write_frame_byte(FILE *stream, uint8_t chr)
 {
     if (chr == 0x7d || chr == 0x7e || chr < 0x20) {
         fputc(0x7d, stream);
@@ -62,7 +62,7 @@ void write_frame_byte(FILE *stream, uint8_t chr)
     }
 }
 
-int write_frame(FILE *stream, uint8_t *buffer, int len)
+int hdlc_write_frame(FILE *stream, uint8_t *buffer, int len)
 {
     uint16_t fcs;
 
@@ -76,14 +76,14 @@ int write_frame(FILE *stream, uint8_t *buffer, int len)
 
     // Write to output (with byte stuffing)
     for (int i = 0; i < len; i++) {
-        write_frame_byte(stream, buffer[i]);
+        hdlc_write_frame_byte(stream, buffer[i]);
     }
 
     // Calculate checksum and write to output
     fcs = calculate_fcs16(buffer, len);
     // FIXME: is this different for big-endian/little-endian processors?
-    write_frame_byte(stream, fcs & 0x00FF);
-    write_frame_byte(stream, (fcs & 0xFF00) >> 8);
+    hdlc_write_frame_byte(stream, fcs & 0x00FF);
+    hdlc_write_frame_byte(stream, (fcs & 0xFF00) >> 8);
 
     // End of frame
     fputc(0x7e, stream);

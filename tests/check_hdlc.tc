@@ -1,7 +1,7 @@
 #suite Frame
 
 #include "fcs.c"
-#include "frame.c"
+#include "hdlc.c"
 
 
 #test check_read_frame
@@ -16,7 +16,7 @@ uint8_t encoded_frame[] = {
 
 FILE* stream = fmemopen(encoded_frame, sizeof(encoded_frame), "rb");
 uint8_t buffer[100];
-int len = read_frame(stream, buffer);
+int len = hdlc_read_frame(stream, buffer);
 ck_assert_uint_eq(len, 26);
 ck_assert_uint_eq(buffer[0], 0xff);
 ck_assert_uint_eq(buffer[1], 0x03);

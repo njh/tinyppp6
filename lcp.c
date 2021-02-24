@@ -24,7 +24,7 @@ void lcp_reply_conf_req(FILE *stream, uint8_t *buffer, int len)
     // Change LCP code to from ConfReq to ConfAck
     buffer[4] = LCP_CONF_ACK;
 
-    write_frame(stream, buffer, len);
+    hdlc_write_frame(stream, buffer, len);
 }
 
 void lcp_handle_frame(uint8_t *buffer, int len)
@@ -118,5 +118,5 @@ void lcp_send_conf_req(FILE *stream)
     buffer[18] = (our_magic & 0x0000FF00) >> 8;
     buffer[19] = (our_magic & 0x000000FF) >> 0;
 
-    write_frame(stream, buffer, 20);
+    hdlc_write_frame(stream, buffer, 20);
 }
