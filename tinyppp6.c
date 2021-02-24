@@ -28,6 +28,9 @@ void handle_frame(uint8_t *buffer, int len)
         case 0x8057:
             fprintf(stderr, "tinyppp6 recv: IPv6 Control Protocol (len=%d)\n", len);
             break;
+        case 0x0057:
+            fprintf(stderr, "tinyppp6 recv: IPv6 Packet (len=%d)\n", len);
+            break;
         default:
             fprintf(stderr, "tinyppp6 recv: Unknown 0x%4.4x (len=%d)\n", protocol, len);
             break;
