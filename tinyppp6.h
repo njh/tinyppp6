@@ -1,6 +1,9 @@
 #include <stdio.h>
 
 
+#ifndef TINYPPP6_H
+#define TINYPPP6_H
+
 // fcs.c
 uint16_t calculate_fcs16(const uint8_t *cp, int len);
 
@@ -27,3 +30,5 @@ enum {
     LCP_ECHO_REPLY = 10,
     LCP_DISCARD_REQ = 11,
 };
+
+#endif
