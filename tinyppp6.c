@@ -26,7 +26,7 @@ void handle_frame(uint8_t *buffer, int len)
             fprintf(stderr, "tinyppp6 recv: Challenge Handshake Authentication Protocol (len=%d)\n", len);
             break;
         case 0x8057:
-            fprintf(stderr, "tinyppp6 recv: IPv6 Control Protocol (len=%d)\n", len);
+            ipv6cp_handle_frame(buffer, len - 2);
             break;
         case 0x0057:
             fprintf(stderr, "tinyppp6 recv: IPv6 Packet (len=%d)\n", len);

@@ -66,6 +66,7 @@ void lcp_handle_frame(uint8_t *buffer, int len)
 
         case LCP_CONF_ACK:
             fprintf(stderr, "tinyppp6 recv: LCP Configure-Ack\n");
+            ipv6cp_send_conf_req(stdout);
             break;
 
         case LCP_CONF_NAK:

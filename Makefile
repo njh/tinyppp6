@@ -4,7 +4,7 @@ LDFLAGS=
 
 all: tinyppp6
 
-tinyppp6: tinyppp6.o hdlc.o fcs.o lcp.o
+tinyppp6: tinyppp6.o hdlc.o ipv6cp.o fcs.o lcp.o
 	$(CC) $(LDFLAGS) -o $@ $^
 
 %.o: %.c
