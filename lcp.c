@@ -115,33 +115,25 @@ void lcp_send_conf_req(FILE *stream)
 {
     uint8_t buffer[32];
 
-    fprintf(stderr, "tinyppp6 send: Sending Conf-Req\n");
+    fprintf(stderr, "tinyppp6 send: Sending LCP Conf-Req\n");
 
     buffer[0] = 0xff;
     buffer[1] = 0x03;
 
     buffer[2] = 0xc0;  // LCP Protocol
     buffer[3] = 0x21;
-    buffer[4] = LCP_CODE_REJ;
+    buffer[4] = LCP_CONF_REQ;
     buffer[5] = 0x01;  // LCP id
     buffer[6] = 0;     // LCP length
-    buffer[7] = 16;    // LCP length
-
-    // lcp_add_async_control_map()
-    buffer[8] = 0x02;  // Async Control Map
-    buffer[9] = 6;  // Length
-    buffer[10] = 0;
-    buffer[11] = 0;
-    buffer[12] = 0;
-    buffer[13] = 0;
+    buffer[7] = 10;    // LCP length
 
     // lcp_add_magic_number()
-    buffer[14] = 0x05;  // Magic Number
-    buffer[15] = 6;  // Length
-    buffer[16] = (our_magic & 0xFF000000) >> 24;
-    buffer[17] = (our_magic & 0x00FF0000) >> 16;
-    buffer[18] = (our_magic & 0x0000FF00) >> 8;
-    buffer[19] = (our_magic & 0x000000FF) >> 0;
+    buffer[8] = 0x05;  // Magic Number
+    buffer[9] = 6;  // Length
+    buffer[10] = (our_magic & 0xFF000000) >> 24;
+    buffer[11] = (our_magic & 0x00FF0000) >> 16;
+    buffer[12] = (our_magic & 0x0000FF00) >> 8;
+    buffer[13] = (our_magic & 0x000000FF) >> 0;
 
-    hdlc_write_frame(stream, buffer, 20);
+    hdlc_write_frame(stream, buffer, 14);
 }
