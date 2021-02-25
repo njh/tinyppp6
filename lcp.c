@@ -44,7 +44,7 @@ void lcp_handle_frame(uint8_t *buffer, int len)
             fprintf(stderr, "tinyppp6 recv: LCP Configure-Ack\n");
             break;
 
-        case LCP_CONF_NACK:
+        case LCP_CONF_NAK:
             fprintf(stderr, "tinyppp6 recv: LCP Configure-Nak\n");
             break;
 

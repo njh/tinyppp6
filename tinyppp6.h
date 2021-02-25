@@ -21,7 +21,7 @@ void lcp_send_conf_req(FILE *stream);
 enum {
     LCP_CONF_REQ = 1,
     LCP_CONF_ACK = 2,
-    LCP_CONF_NACK = 3,
+    LCP_CONF_NAK = 3,
     LCP_CONF_REJ = 4,
     LCP_TERM_REQ = 5,
     LCP_TERM_ACK = 6,
