@@ -100,11 +100,6 @@ int hdlc_write_frame(FILE *stream, const uint8_t *buffer, int len)
 {
     uint16_t fcs;
 
-    for (int i = 0; i < len; i++) {
-        fprintf(stderr, "%2.2x ", buffer[i]);
-    }
-    fprintf(stderr, "\n");
-
     // Start of frame
     fputc(0x7e, stream);
 
