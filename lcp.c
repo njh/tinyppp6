@@ -19,12 +19,36 @@ void lcp_reply_conf_req(FILE *stream, uint8_t *buffer, int len)
 {
     // FIXME: check if there are any options we don't like
 
-    fprintf(stderr, "tinyppp6 send: Sending Conf-Ack\n");
+    fprintf(stderr, "tinyppp6 send: Sending LCP Conf-Ack\n");
 
     // Change LCP code to from ConfReq to ConfAck
     buffer[4] = LCP_CONF_ACK;
 
     hdlc_write_frame(stream, buffer, len);
+}
+
+void lcp_echo_reply(FILE *stream)
+{
+    uint8_t buffer[32];
+
+    fprintf(stderr, "tinyppp6 send: Sending Echo-Reply\n");
+
+    buffer[0] = 0xff;
+    buffer[1] = 0x03;
+
+    buffer[2] = 0xc0;  // LCP Protocol
+    buffer[3] = 0x21;
+    buffer[4] = LCP_ECHO_REPLY;
+    buffer[5] = 0x00;  // LCP id
+    buffer[6] = 0;     // LCP length
+    buffer[7] = 8;     // LCP length
+
+    buffer[10] = (our_magic & 0xFF000000) >> 24;
+    buffer[11] = (our_magic & 0x00FF0000) >> 16;
+    buffer[12] = (our_magic & 0x0000FF00) >> 8;
+    buffer[13] = (our_magic & 0x000000FF) >> 0;
+
+    hdlc_write_frame(stream, buffer, 12);
 }
 
 void lcp_handle_frame(uint8_t *buffer, int len)
@@ -70,6 +94,7 @@ void lcp_handle_frame(uint8_t *buffer, int len)
 
         case LCP_ECHO_REQ:
             fprintf(stderr, "tinyppp6 recv: LCP Echo-Request\n");
+            lcp_echo_reply(stdout);
             break;
 
         case LCP_ECHO_REPLY:
