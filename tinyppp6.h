@@ -4,6 +4,20 @@
 #ifndef TINYPPP6_H
 #define TINYPPP6_H
 
+// Macros to get integers in and out of buffers in network byte order
+#define BUF_GET_UINT8(buf, idx)        buf[idx]
+#define BUF_SET_UINT8(buf, idx, val)   buf[idx] = (uint8_t)val;
+#define BUF_GET_UINT16(buf, idx)       (buf[idx] << 8) | buf[idx+1]
+#define BUF_SET_UINT16(buf, idx, val)  buf[idx] =   (val & 0xFF00u) >> 8; \
+                                       buf[idx+1] = (val & 0x00FFu);
+#define BUF_GET_UINT32(buf, idx)       (buf[idx] << 24) | (buf[idx+1] << 16) | \
+                                       (buf[idx+2] << 8) | buf[idx+3]
+#define BUF_SET_UINT32(buf, idx, val)  buf[idx] =   (val & 0xFF000000u) >> 24; \
+                                       buf[idx+1] = (val & 0x00FF0000u) >> 16; \
+                                       buf[idx+2] = (val & 0x0000FF00u) >> 8; \
+                                       buf[idx+3] = (val & 0x000000FFu);
+
+
 // fcs.c
 uint16_t calculate_fcs16(const uint8_t *cp, int len);
 
