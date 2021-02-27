@@ -1,19 +1,43 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "tinyppp6.h"
 
+
+uint8_t our_interface_id[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02};
+uint8_t their_interface_id[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01};
+
+
 // https://tools.ietf.org/html/rfc5072
+
+void ipv6cp_init()
+{
+}
 
 void ipv6cp_reply_conf_req(FILE *stream, uint8_t *buffer, int len)
 {
     // FIXME: check if there are any options we don't like
 
+    // Better way of formatting this?
+    fprintf(stderr, "tinyppp6 remote interface ID is: fe80::%2.2x%2.2x:%2.2x%2.2x:%2.2x%2.2x:%2.2x%2.2x\n",
+       BUF_GET_UINT8(buffer, 10),
+       BUF_GET_UINT8(buffer, 11),
+       BUF_GET_UINT8(buffer, 12),
+       BUF_GET_UINT8(buffer, 13),
+       BUF_GET_UINT8(buffer, 14),
+       BUF_GET_UINT8(buffer, 15),
+       BUF_GET_UINT8(buffer, 16),
+       BUF_GET_UINT8(buffer, 17)
+    );
+
     fprintf(stderr, "tinyppp6 send: Sending IPV6CP Conf-Ack\n");
 
     // Change IPV6CP code to from ConfReq to ConfAck
-    buffer[4] = IPV6CP_CONF_ACK;
+    BUF_SET_UINT8(buffer, 4, IPV6CP_CONF_ACK);
+
+    // FIXME: Store their interface ID
 
     hdlc_write_frame(stream, buffer, len);
 }
@@ -33,6 +57,7 @@ void ipv6cp_handle_frame(uint8_t *buffer, int len)
 
         case IPV6CP_CONF_ACK:
             fprintf(stderr, "tinyppp6 recv: IPV6CP Configure-Ack\n");
+            // Store our interface ID?
             break;
 
         case IPV6CP_CONF_NAK:
@@ -67,26 +92,19 @@ void ipv6cp_send_conf_req(FILE *stream)
 
     fprintf(stderr, "tinyppp6 send: Sending IPV6CP Conf-Req\n");
 
-    buffer[0] = 0xff;
-    buffer[1] = 0x03;
+    BUF_SET_UINT8(buffer, 0, 0xFF);
+    BUF_SET_UINT8(buffer, 1, 0x03);
 
-    buffer[2] = 0x80;  // IPV6CP Protocol
-    buffer[3] = 0x57;
-    buffer[4] = IPV6CP_CONF_REQ;
-    buffer[5] = 0x01;  // IPV6CP Id
-    buffer[6] = 0;     // IPV6CP length
-    buffer[7] = 14;    // IPV6CP length
+    BUF_SET_UINT16(buffer, 2, 0x8057); // IPV6CP Protocol
+    BUF_SET_UINT8(buffer, 4, IPV6CP_CONF_REQ);
+    BUF_SET_UINT8(buffer, 5, 0x01); // IPV6CP ID
+    BUF_SET_UINT16(buffer, 6, 14);  // IPV6CP length
 
-    buffer[8] = 0x01;  // Interface Identifier
-    buffer[9] = 10;    // Length
-    buffer[10] = 0x01;
-    buffer[11] = 0x02;
-    buffer[12] = 0x03;
-    buffer[13] = 0x04;
-    buffer[14] = 0x05;
-    buffer[15] = 0x06;
-    buffer[16] = 0x07;
-    buffer[17] = 0x08;
+    BUF_SET_UINT8(buffer, 8, 0x01); // Interface Identifier Option
+    BUF_SET_UINT8(buffer, 9, 10); // Length
+
+    // Copy in the interface identifier
+    memcpy(&buffer[10], our_interface_id, 8);
 
     hdlc_write_frame(stream, buffer, 18);
 }

@@ -12,7 +12,6 @@ uint32_t their_magic = 0;
 void lcp_init()
 {
     our_magic = random();
-
 }
 
 void lcp_reply_conf_req(FILE *stream, uint8_t *buffer, int len)
@@ -22,7 +21,7 @@ void lcp_reply_conf_req(FILE *stream, uint8_t *buffer, int len)
     fprintf(stderr, "tinyppp6 send: Sending LCP Conf-Ack\n");
 
     // Change LCP code to from ConfReq to ConfAck
-    buffer[4] = LCP_CONF_ACK;
+    BUF_SET_UINT8(buffer, 4, LCP_CONF_ACK);
 
     hdlc_write_frame(stream, buffer, len);
 }
@@ -33,28 +32,22 @@ void lcp_echo_reply(FILE *stream)
 
     fprintf(stderr, "tinyppp6 send: Sending Echo-Reply\n");
 
-    buffer[0] = 0xff;
-    buffer[1] = 0x03;
-
-    buffer[2] = 0xc0;  // LCP Protocol
-    buffer[3] = 0x21;
-    buffer[4] = LCP_ECHO_REPLY;
-    buffer[5] = 0x00;  // LCP id
-    buffer[6] = 0;     // LCP length
-    buffer[7] = 8;     // LCP length
-
-    buffer[10] = (our_magic & 0xFF000000) >> 24;
-    buffer[11] = (our_magic & 0x00FF0000) >> 16;
-    buffer[12] = (our_magic & 0x0000FF00) >> 8;
-    buffer[13] = (our_magic & 0x000000FF) >> 0;
+    BUF_SET_UINT8(buffer, 0, 0xFF);
+    BUF_SET_UINT8(buffer, 1, 0x03);
+ 
+    BUF_SET_UINT16(buffer, 2, 0xc021); // LCP Protocol
+    BUF_SET_UINT8(buffer, 4, LCP_ECHO_REPLY);
+    BUF_SET_UINT8(buffer, 5, 0x00); // Id
+    BUF_SET_UINT16(buffer, 6, 8);   // Length
+    BUF_SET_UINT32(buffer, 10, our_magic);
 
     hdlc_write_frame(stream, buffer, 12);
 }
 
 void lcp_handle_frame(uint8_t *buffer, int len)
 {
-    int code = buffer[4];
-    int id = buffer[5];
+    int code = BUF_GET_UINT8(buffer, 4);
+    int id = BUF_GET_UINT8(buffer, 5);
 
     fprintf(stderr, "tinyppp6 recv: Link Control Protocol (%d, len=%d, id=%x)\n", code, len, id);
 
@@ -118,23 +111,17 @@ void lcp_send_conf_req(FILE *stream)
 
     fprintf(stderr, "tinyppp6 send: Sending LCP Conf-Req\n");
 
-    buffer[0] = 0xff;
-    buffer[1] = 0x03;
+    BUF_SET_UINT8(buffer, 0, 0xFF);
+    BUF_SET_UINT8(buffer, 1, 0x03);
+ 
+    BUF_SET_UINT16(buffer, 2, 0xc021); // LCP Protocol
+    BUF_SET_UINT8(buffer, 4, LCP_CONF_REQ);
+    BUF_SET_UINT8(buffer, 5, 0x01);  // Id
+    BUF_SET_UINT16(buffer, 6, 10);   // Length
 
-    buffer[2] = 0xc0;  // LCP Protocol
-    buffer[3] = 0x21;
-    buffer[4] = LCP_CONF_REQ;
-    buffer[5] = 0x01;  // LCP id
-    buffer[6] = 0;     // LCP length
-    buffer[7] = 10;    // LCP length
-
-    // lcp_add_magic_number()
-    buffer[8] = 0x05;  // Magic Number
-    buffer[9] = 6;  // Length
-    buffer[10] = (our_magic & 0xFF000000) >> 24;
-    buffer[11] = (our_magic & 0x00FF0000) >> 16;
-    buffer[12] = (our_magic & 0x0000FF00) >> 8;
-    buffer[13] = (our_magic & 0x000000FF) >> 0;
+    BUF_SET_UINT8(buffer, 8, 0x05); // Option: Magic Number
+    BUF_SET_UINT8(buffer, 9, 6);    // Length
+    BUF_SET_UINT32(buffer, 10, our_magic);
 
     hdlc_write_frame(stream, buffer, 14);
 }
