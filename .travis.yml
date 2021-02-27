@@ -1,11 +1,14 @@
 language: c
 
-addons:
-  apt:
-    packages:
-      - pkg-config
-      - check
-    update: true
+os: linux
+arch: amd64
+dist: focal
+
+before_install:
+  - wget http://ftp.debian.org/debian/pool/main/c/check/check_0.15.2-2_amd64.deb
+  - wget http://ftp.debian.org/debian/pool/main/s/subunit/libsubunit-dev_1.4.0-3_amd64.deb
+  - wget http://ftp.debian.org/debian/pool/main/s/subunit/libsubunit0_1.4.0-3_amd64.deb
+  - sudo dpkg -i *.deb
 
 script:
   - make
