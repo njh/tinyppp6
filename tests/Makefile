@@ -1,5 +1,5 @@
 CFLAGS += -Werror -Wall -Wextra -pedantic -g -O0
-CFLAGS += -I../
+CFLAGS += -I../src/
 
 # FIXME: work out how to apply this to the clang compiler only
 CFLAGS += -Wno-gnu-zero-variadic-macro-arguments

@@ -1,20 +1,11 @@
-CFLAGS=-g -Wall
-LDFLAGS=
-
-
-all: tinyppp6
-
-tinyppp6: tinyppp6.o hdlc.o ipv6cp.o fcs.o lcp.o
-	$(CC) $(LDFLAGS) -o $@ $^
-
-%.o: %.c
-	$(CC) -c -o $@ $<
+build:
+	make -C src
 
 clean:
-	rm -f *.o tinyppp6
+	make -C src clean
 	make -C tests clean
 
-test:
+test: build
 	make -C tests test
 
-.PHONY: all clean test
+.PHONY: build clean test
