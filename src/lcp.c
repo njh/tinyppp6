@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "tinyppp6.h"
 
@@ -113,8 +114,8 @@ void lcp_send_conf_req(FILE *stream)
 
     BUF_SET_UINT8(buffer, 0, 0xFF);
     BUF_SET_UINT8(buffer, 1, 0x03);
- 
     BUF_SET_UINT16(buffer, 2, 0xc021); // LCP Protocol
+
     BUF_SET_UINT8(buffer, 4, LCP_CONF_REQ);
     BUF_SET_UINT8(buffer, 5, 0x01);  // Id
     BUF_SET_UINT16(buffer, 6, 10);   // Length
@@ -124,4 +125,28 @@ void lcp_send_conf_req(FILE *stream)
     BUF_SET_UINT32(buffer, 10, our_magic);
 
     hdlc_write_frame(stream, buffer, 14);
+}
+
+
+void lcp_reject_protocol(FILE *stream, uint8_t *buffer, int len)
+{
+    uint8_t replybuf[2000];
+    static uint8_t id = 1;
+
+    uint16_t protocol = BUF_GET_UINT16(buffer, 2);
+    fprintf(stderr, "tinyppp6 send: Sending LCP Protocol-Reject for 0x%4.4x\n", protocol);
+
+    BUF_SET_UINT8(replybuf, 0, 0xFF);
+    BUF_SET_UINT8(replybuf, 1, 0x03);
+    BUF_SET_UINT16(replybuf, 2, 0xc021); // LCP Protocol
+
+    BUF_SET_UINT8(replybuf, 4, LCP_PROTO_REJ);
+    BUF_SET_UINT8(replybuf, 5, id++);  // Id
+    BUF_SET_UINT16(replybuf, 6, len+2);   // Length
+    BUF_SET_UINT16(replybuf, 8, protocol);   // Length
+
+    // FIXME: ensure length doesn't exceed the MRU
+    memcpy(&replybuf[10], &buffer[4], len-4);
+
+    hdlc_write_frame(stream, replybuf, len+6);
 }

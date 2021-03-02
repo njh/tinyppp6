@@ -16,15 +16,6 @@ void handle_frame(uint8_t *buffer, int len)
         case 0xc021:
             lcp_handle_frame(buffer, len - 2);
             break;
-        case 0xc023:
-            fprintf(stderr, "tinyppp6 recv: Password Authentication Protocol (len=%d)\n", len);
-            break;
-        case 0xc025:
-            fprintf(stderr, "tinyppp6 recv: Link Quality Report (len=%d)\n", len);
-            break;
-        case 0xc223:
-            fprintf(stderr, "tinyppp6 recv: Challenge Handshake Authentication Protocol (len=%d)\n", len);
-            break;
         case 0x8057:
             ipv6cp_handle_frame(buffer, len - 2);
             break;
@@ -33,6 +24,7 @@ void handle_frame(uint8_t *buffer, int len)
             break;
         default:
             fprintf(stderr, "tinyppp6 recv: Unknown 0x%4.4x (len=%d)\n", protocol, len);
+            lcp_reject_protocol(stdout, buffer, len);
             break;
     }
 
