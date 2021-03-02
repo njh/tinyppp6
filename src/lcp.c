@@ -31,7 +31,7 @@ void lcp_echo_reply(FILE *stream)
 {
     uint8_t buffer[32];
 
-    fprintf(stderr, "tinyppp6 send: Sending Echo-Reply\n");
+    fprintf(stderr, "tinyppp6 send: received Echo-Request, sending Echo-Reply\n");
 
     BUF_SET_UINT8(buffer, 0, 0xFF);
     BUF_SET_UINT8(buffer, 1, 0x03);
@@ -54,12 +54,10 @@ void lcp_handle_frame(uint8_t *buffer, int len)
 
     switch (code) {
         case LCP_CONF_REQ:
-            fprintf(stderr, "tinyppp6 recv: LCP Configure-Request\n");
             lcp_reply_conf_req(stdout, buffer, len);
             break;
 
         case LCP_CONF_ACK:
-            fprintf(stderr, "tinyppp6 recv: LCP Configure-Ack\n");
             ipv6cp_send_conf_req(stdout);
             break;
 
@@ -88,7 +86,6 @@ void lcp_handle_frame(uint8_t *buffer, int len)
             break;
 
         case LCP_ECHO_REQ:
-            fprintf(stderr, "tinyppp6 recv: LCP Echo-Request\n");
             lcp_echo_reply(stdout);
             break;
 
