@@ -31,7 +31,7 @@ void lcp_echo_reply(FILE *stream)
 {
     uint8_t buffer[32];
 
-    fprintf(stderr, "tinyppp6 send: received Echo-Request, sending Echo-Reply\n");
+    fprintf(stderr, "tinyppp6 send: received LCP Echo-Request, sending LCP Echo-Reply\n");
 
     BUF_SET_UINT8(buffer, 0, 0xFF);
     BUF_SET_UINT8(buffer, 1, 0x03);
@@ -48,9 +48,6 @@ void lcp_echo_reply(FILE *stream)
 void lcp_handle_frame(FILE *stream, uint8_t *buffer, int len)
 {
     int code = BUF_GET_UINT8(buffer, 4);
-    int id = BUF_GET_UINT8(buffer, 5);
-
-    fprintf(stderr, "tinyppp6 recv: Link Control Protocol (%d, len=%d, id=%x)\n", code, len, id);
 
     switch (code) {
         case LCP_CONF_REQ:
