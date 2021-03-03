@@ -1,0 +1,21 @@
+#suite LCP
+
+#include "fcs.c"
+#include "hdlc.c"
+#include "lcp.c"
+#include "ipv6cp.c"
+
+
+#test check_lcp_reject_protocol
+uint8_t ppp_frame[] = { 0xFF, 0x03, 0x80, 0x021, 0x01, 0x02 };
+uint8_t buffer[2000];
+
+FILE* stream = fmemopen(buffer, sizeof(buffer), "wb");
+lcp_reject_protocol(stream, ppp_frame, sizeof(ppp_frame));
+ck_assert_uint_eq(ftell(stream), 23);
+ck_assert_mem_eq(
+  buffer,
+  "\x7E\xFF\x7D\x23\xC0\x21\x7D\x28\x7D\x21\x7D\x20\x7D\x28\x80\x21"
+  "\x7D\x21\x7D\x22\x92\x3E\x7E",
+  23
+);
