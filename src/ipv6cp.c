@@ -95,7 +95,7 @@ void ipv6cp_send_conf_req(FILE *stream)
     BUF_SET_UINT8(buffer, 0, 0xFF);
     BUF_SET_UINT8(buffer, 1, 0x03);
 
-    BUF_SET_UINT16(buffer, 2, 0x8057); // IPV6CP Protocol
+    BUF_SET_UINT16(buffer, 2, PPP_PROTO_IPV6CP); // IPV6CP Protocol
     BUF_SET_UINT8(buffer, 4, IPV6CP_CONF_REQ);
     BUF_SET_UINT8(buffer, 5, 0x01); // IPV6CP ID
     BUF_SET_UINT16(buffer, 6, 14);  // IPV6CP length

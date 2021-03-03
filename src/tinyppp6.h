@@ -18,6 +18,16 @@
                                        buf[idx+3] = (val & 0x000000FFu);
 
 
+// PPP Protocol Numbers
+// https://www.iana.org/assignments/ppp-numbers/
+enum {
+    PPP_PROTO_PAD = 0x0001,
+    PPP_PROTO_LCP = 0xc021,
+    PPP_PROTO_IPV6CP = 0x8057,
+    PPP_PROTO_IPV6 = 0x0057
+};
+
+
 // fcs.c
 uint16_t calculate_fcs16(const uint8_t *cp, int len);
 

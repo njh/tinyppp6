@@ -36,7 +36,7 @@ void lcp_echo_reply(FILE *stream)
     BUF_SET_UINT8(buffer, 0, 0xFF);
     BUF_SET_UINT8(buffer, 1, 0x03);
  
-    BUF_SET_UINT16(buffer, 2, 0xc021); // LCP Protocol
+    BUF_SET_UINT16(buffer, 2, PPP_PROTO_LCP); // LCP Protocol
     BUF_SET_UINT8(buffer, 4, LCP_ECHO_REPLY);
     BUF_SET_UINT8(buffer, 5, 0x00); // Id
     BUF_SET_UINT16(buffer, 6, 8);   // Length
@@ -111,7 +111,7 @@ void lcp_send_conf_req(FILE *stream)
 
     BUF_SET_UINT8(buffer, 0, 0xFF);
     BUF_SET_UINT8(buffer, 1, 0x03);
-    BUF_SET_UINT16(buffer, 2, 0xc021); // LCP Protocol
+    BUF_SET_UINT16(buffer, 2, PPP_PROTO_LCP); // LCP Protocol
 
     BUF_SET_UINT8(buffer, 4, LCP_CONF_REQ);
     BUF_SET_UINT8(buffer, 5, 0x01);  // Id
@@ -135,7 +135,7 @@ void lcp_reject_protocol(FILE *stream, uint8_t *buffer, int len)
 
     BUF_SET_UINT8(replybuf, 0, 0xFF);
     BUF_SET_UINT8(replybuf, 1, 0x03);
-    BUF_SET_UINT16(replybuf, 2, 0xc021); // LCP Protocol
+    BUF_SET_UINT16(replybuf, 2, PPP_PROTO_LCP); // LCP Protocol
 
     BUF_SET_UINT8(replybuf, 4, LCP_PROTO_REJ);
     BUF_SET_UINT8(replybuf, 5, id++);  // Id

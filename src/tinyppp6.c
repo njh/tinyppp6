@@ -10,16 +10,16 @@ void handle_frame(uint8_t *buffer, int len)
     // FIXME: how do we detect 1-byte protocol number?
     uint16_t protocol = (buffer[2] << 8) | buffer[3];
     switch (protocol) {
-        case 0x0001:
+        case PPP_PROTO_PAD:
             fprintf(stderr, "tinyppp6 recv: padding (len=%d)\n", len);
             break;
-        case 0xc021:
             lcp_handle_frame(buffer, len - 2);
+        case PPP_PROTO_LCP:
             break;
-        case 0x8057:
             ipv6cp_handle_frame(buffer, len - 2);
+        case PPP_PROTO_IPV6CP:
             break;
-        case 0x0057:
+        case PPP_PROTO_IPV6:
             fprintf(stderr, "tinyppp6 recv: IPv6 Packet (len=%d)\n", len);
             break;
         default:
