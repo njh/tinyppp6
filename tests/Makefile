@@ -1,8 +1,10 @@
 CFLAGS += -Werror -Wall -Wextra -pedantic -g -O0
 CFLAGS += -I../src/
 
-# FIXME: work out how to apply this to the clang compiler only
-CFLAGS += -Wno-gnu-zero-variadic-macro-arguments
+# Work around for compiling with clang
+ifeq ($(shell $(CC) -v 2>&1 | grep -c "clang version"), 1)
+  CFLAGS += -Wno-gnu-zero-variadic-macro-arguments
+endif
 
 CHECK_CFLAGS = $(shell pkg-config --cflags check)
 CHECK_LIBS = $(shell pkg-config --libs check)
