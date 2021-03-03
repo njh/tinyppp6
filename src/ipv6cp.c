@@ -42,7 +42,7 @@ void ipv6cp_reply_conf_req(FILE *stream, uint8_t *buffer, int len)
     hdlc_write_frame(stream, buffer, len);
 }
 
-void ipv6cp_handle_frame(uint8_t *buffer, int len)
+void ipv6cp_handle_frame(FILE *stream, uint8_t *buffer, int len)
 {
     int code = buffer[4];
     int id = buffer[5];
@@ -52,7 +52,7 @@ void ipv6cp_handle_frame(uint8_t *buffer, int len)
     switch (code) {
         case IPV6CP_CONF_REQ:
             fprintf(stderr, "tinyppp6 recv: IPV6CP Configure-Request\n");
-            ipv6cp_reply_conf_req(stdout, buffer, len);
+            ipv6cp_reply_conf_req(stream, buffer, len);
             break;
 
         case IPV6CP_CONF_ACK:

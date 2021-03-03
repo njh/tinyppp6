@@ -45,7 +45,7 @@ void lcp_echo_reply(FILE *stream)
     hdlc_write_frame(stream, buffer, 12);
 }
 
-void lcp_handle_frame(uint8_t *buffer, int len)
+void lcp_handle_frame(FILE *stream, uint8_t *buffer, int len)
 {
     int code = BUF_GET_UINT8(buffer, 4);
     int id = BUF_GET_UINT8(buffer, 5);
@@ -54,11 +54,11 @@ void lcp_handle_frame(uint8_t *buffer, int len)
 
     switch (code) {
         case LCP_CONF_REQ:
-            lcp_reply_conf_req(stdout, buffer, len);
+            lcp_reply_conf_req(stream, buffer, len);
             break;
 
         case LCP_CONF_ACK:
-            ipv6cp_send_conf_req(stdout);
+            ipv6cp_send_conf_req(stream);
             break;
 
         case LCP_CONF_NAK:
@@ -86,7 +86,7 @@ void lcp_handle_frame(uint8_t *buffer, int len)
             break;
 
         case LCP_ECHO_REQ:
-            lcp_echo_reply(stdout);
+            lcp_echo_reply(stream);
             break;
 
         case LCP_ECHO_REPLY:
