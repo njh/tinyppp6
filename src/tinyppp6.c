@@ -20,7 +20,7 @@ void handle_frame(FILE *stream, uint8_t *buffer, int len)
             ipv6cp_handle_frame(stream, buffer, len - 2);
             break;
         case PPP_PROTO_IPV6:
-            fprintf(stderr, "tinyppp6 recv: IPv6 Packet (len=%d)\n", len);
+            ipv6_handle_packet(stream, &buffer[4], len - 4);
             break;
         default:
             fprintf(stderr, "tinyppp6 recv: Unknown 0x%4.4x (len=%d)\n", protocol, len);

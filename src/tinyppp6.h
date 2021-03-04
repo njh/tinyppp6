@@ -36,6 +36,31 @@ int hdlc_read_frame(FILE *stream, uint8_t *buffer);
 int hdlc_check_frame(const uint8_t *buffer, int len);
 int hdlc_write_frame(FILE *stream, const uint8_t *buffer, int len);
 
+
+// ipv6.c
+void ipv6_handle_packet(FILE *stream, uint8_t *buffer, int buffer_len);
+void ipv6_handle_icmpv6(FILE *stream, uint8_t *buffer, int buffer_len);
+void ipv6_handle_udp(FILE *stream, uint8_t *buffer, int buffer_len);
+void ipv6_handle_tcp(FILE *stream, uint8_t *buffer, int buffer_len);
+
+enum ip_protocol {
+    PROTO_TCP = 6,      ///< IP protocol number for TCP
+    PROTO_UDP = 17,     ///< IP protocol number for UDP
+    PROTO_ICMPV6 = 58   ///< IP protocol number for ICMPv6
+};
+
+enum icmpv6_type {
+    ICMPV6_TYPE_UNREACHABLE = 1,
+    ICMPV6_TYPE_PARAM_PROB = 4,
+    ICMPV6_TYPE_ECHO = 128,
+    ICMPV6_TYPE_ECHO_REPLY = 129,
+    ICMPV6_TYPE_RS = 133,
+    ICMPV6_TYPE_RA = 134,
+    ICMPV6_TYPE_NS = 135,
+    ICMPV6_TYPE_NA = 136
+};
+
+
 // ipv6cp.c
 void ipv6cp_init();
 void ipv6cp_handle_frame(FILE *stream, uint8_t *buffer, int len);
