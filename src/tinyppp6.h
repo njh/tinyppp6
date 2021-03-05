@@ -42,6 +42,7 @@ void ipv6_handle_packet(FILE *stream, uint8_t *buffer, int buffer_len);
 void ipv6_handle_icmpv6(FILE *stream, uint8_t *buffer, int buffer_len);
 void ipv6_handle_udp(FILE *stream, uint8_t *buffer, int buffer_len);
 void ipv6_handle_tcp(FILE *stream, uint8_t *buffer, int buffer_len);
+uint16_t ipv6_calculate_checksum(uint8_t *buffer, int buffer_len);
 
 enum ip_protocol {
     PROTO_TCP = 6,      ///< IP protocol number for TCP

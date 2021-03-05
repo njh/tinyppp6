@@ -19,6 +19,11 @@ void ipv6_handle_packet(FILE *stream, uint8_t *buffer, int buffer_len)
 
     // FIXME: check that the packet isn't longer than the buffer?
 
+    if (ipv6_calculate_checksum(buffer, buffer_len) != 0) {
+        fprintf(stderr, "tinyppp6 recv: IPv6 protocol checksum error\n");
+        return;
+    }
+
     switch (proto) {
         case PROTO_ICMPV6:
             ipv6_handle_icmpv6(stream, buffer, len);
@@ -79,4 +84,59 @@ void ipv6_handle_tcp(FILE *stream, uint8_t *buffer, int buffer_len)
 {
     fprintf(stderr, "tinyppp6 recv: TCP (len=%d)\n", buffer_len);
     // FIXME: we don't support TCP, send ICMPv6 back
+}
+
+
+// This function comes from Contiki's uip6.c
+uint16_t chksum(uint16_t sum, const uint8_t *data, uint16_t len)
+{
+    uint16_t t;
+    const uint8_t *dataptr;
+    const uint8_t *last_byte;
+
+    dataptr = data;
+    last_byte = data + len - 1;
+
+    while (dataptr < last_byte) {  /* At least two more bytes */
+        t = (dataptr[0] << 8) + dataptr[1];
+        sum += t;
+        if (sum < t) {
+            sum++;      /* carry */
+        }
+        dataptr += 2;
+    }
+
+    if (dataptr == last_byte) {
+        t = (dataptr[0] << 8) + 0;
+        sum += t;
+        if (sum < t) {
+            sum++;      /* carry */
+        }
+    }
+
+    /* Return sum in host byte order. */
+    return sum;
+}
+
+// This function is derived from Contiki's uip6.c / upper_layer_chksum()
+uint16_t ipv6_calculate_checksum(uint8_t *buffer, int buffer_len)
+{
+    uint16_t len = BUF_GET_UINT16(buffer, 4);
+    uint8_t proto = BUF_GET_UINT8(buffer, 6);
+    uint8_t *src_addr = &buffer[8];
+    uint8_t *dest_addr = &buffer[24];
+    uint8_t *payload = &buffer[40];
+
+    /* First sum pseudoheader. */
+    /* IP protocol and length fields. This addition cannot carry. */
+    volatile uint16_t newsum = len + proto;
+
+    /* Sum IP source and destination addresses. */
+    newsum = chksum(newsum, src_addr, 16);
+    newsum = chksum(newsum, dest_addr, 16);
+
+    /* Sum the payload header and data */
+    newsum = chksum(newsum, payload, len);
+
+    return ~newsum;
 }
