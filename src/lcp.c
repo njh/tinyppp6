@@ -35,7 +35,7 @@ void lcp_echo_reply(FILE *stream)
 
     BUF_SET_UINT8(buffer, 0, 0xFF);
     BUF_SET_UINT8(buffer, 1, 0x03);
- 
+
     BUF_SET_UINT16(buffer, 2, PPP_PROTO_LCP); // LCP Protocol
     BUF_SET_UINT8(buffer, 4, LCP_ECHO_REPLY);
     BUF_SET_UINT8(buffer, 5, 0x00); // Id
@@ -136,11 +136,11 @@ void lcp_reject_protocol(FILE *stream, uint8_t *buffer, int len)
 
     BUF_SET_UINT8(replybuf, 4, LCP_PROTO_REJ);
     BUF_SET_UINT8(replybuf, 5, id++);  // Id
-    BUF_SET_UINT16(replybuf, 6, len+2);   // Length
+    BUF_SET_UINT16(replybuf, 6, len + 2); // Length
     BUF_SET_UINT16(replybuf, 8, protocol);   // Length
 
     // FIXME: ensure length doesn't exceed the MRU
-    memcpy(&replybuf[10], &buffer[4], len-4);
+    memcpy(&replybuf[10], &buffer[4], len - 4);
 
-    hdlc_write_frame(stream, replybuf, len+6);
+    hdlc_write_frame(stream, replybuf, len + 6);
 }

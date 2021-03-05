@@ -83,7 +83,7 @@ void lcp_init();
 void lcp_handle_frame(FILE *stream, uint8_t *buffer, int len);
 void lcp_echo_reply(FILE *stream);
 void lcp_send_conf_req(FILE *stream);
-void lcp_reject_protocol(FILE* stream, uint8_t *buffer, int len);
+void lcp_reject_protocol(FILE *stream, uint8_t *buffer, int len);
 
 // LCP Codes
 enum {
