@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "tinyppp6.h"
 
@@ -31,22 +32,25 @@ void handle_frame(FILE *stream, uint8_t *buffer, int len)
     fprintf(stderr, "\n");
 }
 
-int main()
+int main(int argc, char **argv)
 {
-    FILE *stream = stdin;
+    FILE *input = stdin;
+    FILE *output = stdout;
 
     // FIXME: Seed the random number generator
     // FIXME: how to seed? srandom();
 
     lcp_init();
-    lcp_send_conf_req(stdout);
+    lcp_send_conf_req(output);
 
-    while (!feof(stream)) {
+    while (!feof(input)) {
         uint8_t buffer[2048];
-        int len = hdlc_read_frame(stream, buffer);
+        int len = hdlc_read_frame(input, buffer);
         if (len > 0 && hdlc_check_frame(buffer, len)) {
-            handle_frame(stdout, buffer, len);
+            handle_frame(output, buffer, len);
         }
     }
 
+    fclose(input);
+    fclose(output);
 }
