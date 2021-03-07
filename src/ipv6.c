@@ -76,8 +76,16 @@ void ipv6_handle_udp(FILE *stream, uint8_t *buffer, int buffer_len)
     uint16_t src_port = BUF_GET_UINT16(buffer, 40);
     uint16_t dest_port = BUF_GET_UINT16(buffer, 42);
     uint16_t len = BUF_GET_UINT16(buffer, 44) - 8;
+    char *payload = (char*)&buffer[48];
 
     fprintf(stderr, "tinyppp6 recv: UDP (src=%d, dest=%d, len=%d)\n", src_port, dest_port, len);
+
+    if (dest_port == 1234) {
+        fwrite(payload, 1, len, stderr);
+        fprintf(stderr, "\n");
+    } else {
+        // FIXME: send back an ICMPv6 message
+    }
 }
 
 void ipv6_handle_tcp(FILE *stream, uint8_t *buffer, int buffer_len)
