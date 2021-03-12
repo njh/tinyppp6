@@ -98,7 +98,7 @@ void hdlc_write_frame_byte(FILE *stream, uint8_t chr)
 
 int hdlc_write_frame(FILE *stream, const uint8_t *buffer, int len)
 {
-    uint16_t fcs;
+    register uint16_t fcs = 0xFFFF;
 
     // Start of frame
     fputc(0x7e, stream);
@@ -106,11 +106,12 @@ int hdlc_write_frame(FILE *stream, const uint8_t *buffer, int len)
     // Write to output (with byte stuffing)
     for (int i = 0; i < len; i++) {
         hdlc_write_frame_byte(stream, buffer[i]);
+        fcs = fcs16_add_byte(fcs, buffer[i]);
     }
 
-    // Calculate checksum and write to output
-    fcs = fcs16_calculate(buffer, len);
+    // Write FCS checksum
     // FIXME: is this different for big-endian/little-endian processors?
+    fcs = fcs ^ 0xFFFF;
     hdlc_write_frame_byte(stream, fcs & 0x00FF);
     hdlc_write_frame_byte(stream, (fcs & 0xFF00) >> 8);
 
