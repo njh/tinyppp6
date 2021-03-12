@@ -22,15 +22,15 @@ void ipv6cp_reply_conf_req(FILE *stream, uint8_t *buffer, int len)
 
     // Better way of formatting this?
     fprintf(stderr, "tinyppp6 remote interface ID is: fe80::%2.2x%2.2x:%2.2x%2.2x:%2.2x%2.2x:%2.2x%2.2x\n",
-       BUF_GET_UINT8(buffer, 10),
-       BUF_GET_UINT8(buffer, 11),
-       BUF_GET_UINT8(buffer, 12),
-       BUF_GET_UINT8(buffer, 13),
-       BUF_GET_UINT8(buffer, 14),
-       BUF_GET_UINT8(buffer, 15),
-       BUF_GET_UINT8(buffer, 16),
-       BUF_GET_UINT8(buffer, 17)
-    );
+            BUF_GET_UINT8(buffer, 10),
+            BUF_GET_UINT8(buffer, 11),
+            BUF_GET_UINT8(buffer, 12),
+            BUF_GET_UINT8(buffer, 13),
+            BUF_GET_UINT8(buffer, 14),
+            BUF_GET_UINT8(buffer, 15),
+            BUF_GET_UINT8(buffer, 16),
+            BUF_GET_UINT8(buffer, 17)
+           );
 
     fprintf(stderr, "tinyppp6 send: Sending IPV6CP Conf-Ack\n");
 
