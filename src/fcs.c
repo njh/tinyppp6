@@ -43,12 +43,17 @@ static uint16_t fcstab[256] = {
     0x7bc7, 0x6a4e, 0x58d5, 0x495c, 0x3de3, 0x2c6a, 0x1ef1, 0x0f78
 };
 
-
-uint16_t calculate_fcs16(const uint8_t *cp, int len)
+// FIXME: best way to tell the compile to inline this?
+uint16_t fcs16_add_byte(uint16_t current_fcs, uint8_t byte)
 {
-    uint16_t fcs = 0xffff;
+    return (current_fcs >> 8) ^ fcstab[(current_fcs ^ byte) & 0xff];
+}
+
+uint16_t fcs16_calculate(const uint8_t *cp, int len)
+{
+    register uint16_t fcs = 0xffff;
     while (len--)
-        fcs = (fcs >> 8) ^ fcstab[(fcs ^ *cp++) & 0xff];
+        fcs = fcs16_add_byte(fcs, *cp++);
 
     return fcs ^ 0xffff;
 }

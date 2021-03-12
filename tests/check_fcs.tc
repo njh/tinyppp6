@@ -2,20 +2,38 @@
 
 #include "fcs.c"
 
-#test check_calculate_fcs16
+
+#test check_fcs16_add_byte
+uint16_t fcs = 0xFFFF;
+fcs = fcs16_add_byte(fcs, 0xFF);
+fcs = fcs16_add_byte(fcs, 0x03);
+fcs = fcs16_add_byte(fcs, 0xC0);
+fcs = fcs16_add_byte(fcs, 0x21);
+ck_assert_uint_eq(fcs ^ 0xffff, 0x2C49);
+
+
+#test check_fcs16_calculate_short
+const uint8_t buffer[] = {
+  0xFF, 0x03, 0xC0, 0x21
+};
+uint16_t checksum = fcs16_calculate(buffer, 4);
+ck_assert_uint_eq(checksum, 0x2C49);
+
+
+#test check_fcs16_calculate_1
 const uint8_t buffer[] = {
   0xFF, 0x03, 0xC0, 0x21, 0x01, 0x00, 0x00, 0x0E,
   0x02, 0x06, 0x00, 0x00, 0x00, 0x00, 0x07, 0x02,
   0x08, 0x02, 0xDD, 0x31
 };
-uint16_t checksum = calculate_fcs16(buffer, 18);
+uint16_t checksum = fcs16_calculate(buffer, 18);
 ck_assert_uint_eq(checksum, 0x31DD);
 
 
-#test check_calculate_fcs16_2
+#test check_fcs16_calculate_2
 const uint8_t buffer[] = {
   0xFF, 0x03, 0xC0, 0x21, 0x09, 0x00, 0x00, 0x08,
   0x80, 0x34, 0xEB, 0x55, 0x03, 0xAE
 };
-uint16_t checksum = calculate_fcs16(buffer, 12);
+uint16_t checksum = fcs16_calculate(buffer, 12);
 ck_assert_uint_eq(checksum, 0xAE03);

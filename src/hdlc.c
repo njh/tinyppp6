@@ -74,7 +74,7 @@ int hdlc_check_frame(const uint8_t *buffer, int len)
     }
 
     // Check FCS (checksum)
-    uint16_t fcs = calculate_fcs16(buffer, len - 2);
+    uint16_t fcs = fcs16_calculate(buffer, len - 2);
     if ((fcs & 0xff) != buffer[len - 2] || ((fcs >> 8) & 0xff) != buffer[len - 1]) {
         fprintf(stderr, "Frame Check Sequence error\n");
         fprintf(stderr, "  Expected: 0x%2.2x%2.2x\n", buffer[len - 2], buffer[len - 1]);
@@ -109,7 +109,7 @@ int hdlc_write_frame(FILE *stream, const uint8_t *buffer, int len)
     }
 
     // Calculate checksum and write to output
-    fcs = calculate_fcs16(buffer, len);
+    fcs = fcs16_calculate(buffer, len);
     // FIXME: is this different for big-endian/little-endian processors?
     hdlc_write_frame_byte(stream, fcs & 0x00FF);
     hdlc_write_frame_byte(stream, (fcs & 0xFF00) >> 8);
