@@ -6,7 +6,7 @@ build: tinyppp6
 tinyppp6: tinyppp6.o hdlc.o ipv6.o ipv6cp.o fcs.o lcp.o
 	$(CC) $(LDFLAGS) -o $@ $^
 
-%.o: %.c
+%.o: %.c tinyppp.h
 	$(CC) -c -o $@ $<
 
 clean:
