@@ -44,11 +44,11 @@ ck_assert_uint_eq(hdlc_check_frame(ppp_frame, sizeof(ppp_frame)), 1);
 
 
 #test check_hdlc_write_frame
-uint8_t ppp_frame[] = { 0xFF, 0x03, 0xC0, 0x21, 0x01, 0xFF, 0x7D, 0x7E };
+uint8_t ppp_frame[] = { 0x01, 0xFF, 0x7D, 0x7E };
 uint8_t buffer[200];
 
 FILE* stream = fmemopen(buffer, sizeof(buffer), "wb");
-hdlc_write_frame(stream, ppp_frame, sizeof(ppp_frame));
+hdlc_write_frame(stream, 0xC021, ppp_frame, sizeof(ppp_frame));
 ck_assert_uint_eq(ftell(stream), 16);
 ck_assert_mem_eq(
   buffer, "\x7E\xFF\x7D\x23\xC0\x21\x7D\x21\xFF\x7D\x5D\x7D\x5E\x9F\xB5\x7E", 16

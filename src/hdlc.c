@@ -96,14 +96,27 @@ void hdlc_write_frame_byte(FILE *stream, uint8_t chr)
     }
 }
 
-int hdlc_write_frame(FILE *stream, const uint8_t *buffer, int len)
+int hdlc_write_frame(FILE *stream, uint16_t protocol, const uint8_t *buffer, int len)
 {
     register uint16_t fcs = 0xFFFF;
 
     // Start of frame
     fputc(0x7e, stream);
 
-    // Write to output (with byte stuffing)
+    // Write frame header
+    // FIXME: make this code more compact
+    hdlc_write_frame_byte(stream, 0xFF);
+    fcs = fcs16_add_byte(fcs, 0xFF);
+    hdlc_write_frame_byte(stream, 0x03);
+    fcs = fcs16_add_byte(fcs, 0x03);
+
+    // Write 16-bit protocol number
+    hdlc_write_frame_byte(stream, (protocol & 0xFF00) >> 8);
+    fcs = fcs16_add_byte(fcs, (protocol & 0xFF00) >> 8);
+    hdlc_write_frame_byte(stream, protocol & 0x00FF);
+    fcs = fcs16_add_byte(fcs, protocol & 0x00FF);
+
+    // Write buffer to output (with byte stuffing)
     for (int i = 0; i < len; i++) {
         hdlc_write_frame_byte(stream, buffer[i]);
         fcs = fcs16_add_byte(fcs, buffer[i]);

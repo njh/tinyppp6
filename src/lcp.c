@@ -22,9 +22,9 @@ void lcp_reply_conf_req(FILE *stream, uint8_t *buffer, int len)
     fprintf(stderr, "tinyppp6 send: Sending LCP Conf-Ack\n");
 
     // Change LCP code to from ConfReq to ConfAck
-    BUF_SET_UINT8(buffer, 4, LCP_CONF_ACK);
+    BUF_SET_UINT8(buffer, 0, LCP_CONF_ACK);
 
-    hdlc_write_frame(stream, buffer, len);
+    hdlc_write_frame(stream, PPP_PROTO_LCP, buffer, len);
 }
 
 void lcp_echo_reply(FILE *stream)
@@ -33,16 +33,12 @@ void lcp_echo_reply(FILE *stream)
 
     fprintf(stderr, "tinyppp6 send: received LCP Echo-Request, sending LCP Echo-Reply\n");
 
-    BUF_SET_UINT8(buffer, 0, 0xFF);
-    BUF_SET_UINT8(buffer, 1, 0x03);
+    BUF_SET_UINT8(buffer, 0, LCP_ECHO_REPLY);
+    BUF_SET_UINT8(buffer, 1, 0x00); // Id
+    BUF_SET_UINT16(buffer, 2, 8);   // Length
+    BUF_SET_UINT32(buffer, 4, our_magic);
 
-    BUF_SET_UINT16(buffer, 2, PPP_PROTO_LCP); // LCP Protocol
-    BUF_SET_UINT8(buffer, 4, LCP_ECHO_REPLY);
-    BUF_SET_UINT8(buffer, 5, 0x00); // Id
-    BUF_SET_UINT16(buffer, 6, 8);   // Length
-    BUF_SET_UINT32(buffer, 8, our_magic);
-
-    hdlc_write_frame(stream, buffer, 12);
+    hdlc_write_frame(stream, PPP_PROTO_LCP, buffer, 8);
 }
 
 void lcp_handle_frame(FILE *stream, uint8_t *buffer, int len)
@@ -106,19 +102,15 @@ void lcp_send_conf_req(FILE *stream)
 
     fprintf(stderr, "tinyppp6 send: Sending LCP Conf-Req\n");
 
-    BUF_SET_UINT8(buffer, 0, 0xFF);
-    BUF_SET_UINT8(buffer, 1, 0x03);
-    BUF_SET_UINT16(buffer, 2, PPP_PROTO_LCP); // LCP Protocol
+    BUF_SET_UINT8(buffer, 0, LCP_CONF_REQ);
+    BUF_SET_UINT8(buffer, 1, 0x01);  // Id
+    BUF_SET_UINT16(buffer, 2, 10);   // Length
 
-    BUF_SET_UINT8(buffer, 4, LCP_CONF_REQ);
-    BUF_SET_UINT8(buffer, 5, 0x01);  // Id
-    BUF_SET_UINT16(buffer, 6, 10);   // Length
+    BUF_SET_UINT8(buffer, 4, 0x05); // Option: Magic Number
+    BUF_SET_UINT8(buffer, 5, 6);    // Length
+    BUF_SET_UINT32(buffer, 6, our_magic);
 
-    BUF_SET_UINT8(buffer, 8, 0x05); // Option: Magic Number
-    BUF_SET_UINT8(buffer, 9, 6);    // Length
-    BUF_SET_UINT32(buffer, 10, our_magic);
-
-    hdlc_write_frame(stream, buffer, 14);
+    hdlc_write_frame(stream, PPP_PROTO_LCP, buffer, 10);
 }
 
 
@@ -130,17 +122,13 @@ void lcp_reject_protocol(FILE *stream, uint8_t *buffer, int len)
     uint16_t protocol = BUF_GET_UINT16(buffer, 2);
     fprintf(stderr, "tinyppp6 send: Sending LCP Protocol-Reject for 0x%4.4x\n", protocol);
 
-    BUF_SET_UINT8(replybuf, 0, 0xFF);
-    BUF_SET_UINT8(replybuf, 1, 0x03);
-    BUF_SET_UINT16(replybuf, 2, PPP_PROTO_LCP); // LCP Protocol
-
-    BUF_SET_UINT8(replybuf, 4, LCP_PROTO_REJ);
-    BUF_SET_UINT8(replybuf, 5, id++);  // Id
-    BUF_SET_UINT16(replybuf, 6, len + 2); // Length
-    BUF_SET_UINT16(replybuf, 8, protocol);   // Length
+    BUF_SET_UINT8(replybuf, 0, LCP_PROTO_REJ);
+    BUF_SET_UINT8(replybuf, 1, id++);  // Id
+    BUF_SET_UINT16(replybuf, 2, len + 6); // Length
+    BUF_SET_UINT16(replybuf, 4, protocol); // Rejected protocol number
 
     // FIXME: ensure length doesn't exceed the MRU
-    memcpy(&replybuf[10], &buffer[4], len - 4);
+    memcpy(&replybuf[6], buffer, len);
 
-    hdlc_write_frame(stream, replybuf, len + 6);
+    hdlc_write_frame(stream, PPP_PROTO_LCP, replybuf, len + 6);
 }

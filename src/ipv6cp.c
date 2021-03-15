@@ -39,7 +39,7 @@ void ipv6cp_reply_conf_req(FILE *stream, uint8_t *buffer, int len)
 
     // FIXME: Store their interface ID
 
-    hdlc_write_frame(stream, buffer, len);
+    hdlc_write_frame(stream, PPP_PROTO_IPV6CP, buffer, len);
 }
 
 void ipv6cp_handle_frame(FILE *stream, uint8_t *buffer, int len)
@@ -92,19 +92,15 @@ void ipv6cp_send_conf_req(FILE *stream)
 
     fprintf(stderr, "tinyppp6 send: Sending IPV6CP Conf-Req\n");
 
-    BUF_SET_UINT8(buffer, 0, 0xFF);
-    BUF_SET_UINT8(buffer, 1, 0x03);
+    BUF_SET_UINT8(buffer, 0, IPV6CP_CONF_REQ);
+    BUF_SET_UINT8(buffer, 1, 0x01); // IPV6CP ID
+    BUF_SET_UINT16(buffer, 2, 14);  // IPV6CP length
 
-    BUF_SET_UINT16(buffer, 2, PPP_PROTO_IPV6CP); // IPV6CP Protocol
-    BUF_SET_UINT8(buffer, 4, IPV6CP_CONF_REQ);
-    BUF_SET_UINT8(buffer, 5, 0x01); // IPV6CP ID
-    BUF_SET_UINT16(buffer, 6, 14);  // IPV6CP length
-
-    BUF_SET_UINT8(buffer, 8, 0x01); // Interface Identifier Option
-    BUF_SET_UINT8(buffer, 9, 10); // Length
+    BUF_SET_UINT8(buffer, 4, 0x01); // Interface Identifier Option
+    BUF_SET_UINT8(buffer, 5, 10); // Length
 
     // Copy in the interface identifier
-    memcpy(&buffer[10], our_interface_id, 8);
+    memcpy(&buffer[6], our_interface_id, 8);
 
-    hdlc_write_frame(stream, buffer, 18);
+    hdlc_write_frame(stream, PPP_PROTO_IPV6CP, buffer, 14);
 }
