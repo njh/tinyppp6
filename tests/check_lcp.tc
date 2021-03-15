@@ -52,3 +52,26 @@ ck_assert_mem_eq(
   "\x89\x67",
   len
 );
+
+
+#test check_lcp_echo_reply
+uint8_t fbuf[2000];
+uint8_t buffer[2000];
+
+// Output a frame
+FILE* stream = fmemopen(fbuf, sizeof(fbuf), "wb+");
+lcp_echo_reply(stream);
+
+// Read the frame back in again
+rewind(stream);
+int len = hdlc_read_frame(stream, buffer);
+
+ck_assert_uint_eq(len, 14);
+ck_assert_uint_eq(hdlc_check_frame(buffer, len), 1);
+ck_assert_mem_eq(
+  buffer,
+  "\xff\x03\xc0\x21"
+  "\x0a\x00\x00\x08\x00\x00\x00\x00"
+  "\x6b\xe4",
+  len
+);

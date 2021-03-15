@@ -40,7 +40,7 @@ void lcp_echo_reply(FILE *stream)
     BUF_SET_UINT8(buffer, 4, LCP_ECHO_REPLY);
     BUF_SET_UINT8(buffer, 5, 0x00); // Id
     BUF_SET_UINT16(buffer, 6, 8);   // Length
-    BUF_SET_UINT32(buffer, 10, our_magic);
+    BUF_SET_UINT32(buffer, 8, our_magic);
 
     hdlc_write_frame(stream, buffer, 12);
 }
