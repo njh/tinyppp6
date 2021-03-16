@@ -44,6 +44,38 @@ void ipv6_handle_packet(FILE *stream, uint8_t *buffer, int buffer_len)
     }
 }
 
+void icmpv6_echo_reply(FILE *stream, uint8_t *buffer, int buffer_len)
+{
+    uint8_t replybuf[2000];
+
+    fprintf(stderr, "tinyppp6 send: received ICMPv6 Echo-Request, sending ICMPv6 Echo-Reply\n");
+
+    BUF_SET_UINT8(replybuf, 0, 0x60); // IPv6 header
+    BUF_SET_UINT8(replybuf, 1, 0x00);
+    BUF_SET_UINT8(replybuf, 2, 0x00);
+    BUF_SET_UINT8(replybuf, 3, 0x00);
+
+    // FIXME: use constant for IPv6 header length
+    BUF_SET_UINT16(replybuf, 4, buffer_len - 40); // Length
+    BUF_SET_UINT8(replybuf, 6, PROTO_ICMPV6);     // Protocol
+    BUF_SET_UINT8(replybuf, 7, 64);               // Hop Limit
+
+    memcpy(&replybuf[8], &buffer[24], 16);  // Source Address
+    memcpy(&replybuf[24], &buffer[8], 16);  // Destination Address
+
+    BUF_SET_UINT8(replybuf, 40, ICMPV6_TYPE_ECHO_REPLY);  // ICMPv6 Type
+    BUF_SET_UINT8(replybuf, 41, 0);   // ICMPv6 Code
+    BUF_SET_UINT16(replybuf, 42, 0);  // ICMPv6 Checksum
+
+    // Copy over the rest of the packet
+    memcpy(&replybuf[44], &buffer[44], buffer_len - 44);
+
+    // Calculate ICMPv6 Checksum
+    BUF_SET_UINT16(replybuf, 42, ipv6_calculate_checksum(replybuf, buffer_len));
+
+    hdlc_write_frame(stream, PPP_PROTO_IPV6, replybuf, buffer_len);
+}
+
 void ipv6_handle_icmpv6(FILE *stream, uint8_t *buffer, int buffer_len)
 {
     uint8_t type = BUF_GET_UINT8(buffer, 40);
@@ -56,8 +88,7 @@ void ipv6_handle_icmpv6(FILE *stream, uint8_t *buffer, int buffer_len)
             return;
 
         case ICMPV6_TYPE_ECHO:
-            fprintf(stderr, "tinyppp6 recv: ICMPv6 Echo Request\n");
-            // FIXME: handle this
+            icmpv6_echo_reply(stream, buffer, buffer_len);
             return;
 
         case ICMPV6_TYPE_RA:
