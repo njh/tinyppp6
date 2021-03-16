@@ -114,12 +114,11 @@ void lcp_send_conf_req(FILE *stream)
 }
 
 
-void lcp_reject_protocol(FILE *stream, uint8_t *buffer, int len)
+void lcp_reject_protocol(FILE *stream, uint16_t protocol, uint8_t *buffer, int len)
 {
     uint8_t replybuf[2000];
     static uint8_t id = 1;
 
-    uint16_t protocol = BUF_GET_UINT16(buffer, 2);
     fprintf(stderr, "tinyppp6 send: Sending LCP Protocol-Reject for 0x%4.4x\n", protocol);
 
     BUF_SET_UINT8(replybuf, 0, LCP_PROTO_REJ);

@@ -7,13 +7,13 @@
 
 
 #test check_lcp_reject_protocol
-uint8_t ppp_frame[] = { 0xFF, 0x03, 0x80, 0x021, 0x01, 0x02 };
+uint8_t ppp_frame[] = { 0x01, 0x02 };
 uint8_t fbuf[2000];
 uint8_t buffer[2000];
 
 // Generate a new frame
 FILE* stream = fmemopen(fbuf, sizeof(fbuf), "wb+");
-lcp_reject_protocol(stream, ppp_frame, sizeof(ppp_frame));
+lcp_reject_protocol(stream, 0x8021, ppp_frame, sizeof(ppp_frame));
 
 // Read the frame back in again
 rewind(stream);
