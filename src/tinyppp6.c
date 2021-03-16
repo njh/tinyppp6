@@ -8,24 +8,26 @@
 
 void handle_frame(FILE *stream, uint8_t *buffer, int len)
 {
-    // FIXME: how do we detect 1-byte protocol number?
     uint16_t protocol = (buffer[2] << 8) | buffer[3];
+    uint8_t *payload = &buffer[4];
+    int payload_len = len - 6;
+
     switch (protocol) {
         case PPP_PROTO_PAD:
-            fprintf(stderr, "tinyppp6 recv: padding (len=%d)\n", len);
+            fprintf(stderr, "tinyppp6 recv: padding (len=%d)\n", payload_len);
             break;
         case PPP_PROTO_LCP:
-            lcp_handle_frame(stream, buffer, len - 2);
+            lcp_handle_frame(stream, payload, payload_len);
             break;
         case PPP_PROTO_IPV6CP:
-            ipv6cp_handle_frame(stream, buffer, len - 2);
+            ipv6cp_handle_frame(stream, payload, payload_len);
             break;
         case PPP_PROTO_IPV6:
-            ipv6_handle_packet(stream, &buffer[4], len - 4);
+            ipv6_handle_packet(stream, payload, payload_len);
             break;
         default:
-            fprintf(stderr, "tinyppp6 recv: Unknown 0x%4.4x (len=%d)\n", protocol, len);
-            lcp_reject_protocol(stream, buffer, len);
+            fprintf(stderr, "tinyppp6 recv: Unknown 0x%4.4x (len=%d)\n", protocol, payload_len);
+            lcp_reject_protocol(stream, protocol, payload, payload_len);
             break;
     }
 

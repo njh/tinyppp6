@@ -43,7 +43,7 @@ void lcp_echo_reply(FILE *stream)
 
 void lcp_handle_frame(FILE *stream, uint8_t *buffer, int len)
 {
-    int code = BUF_GET_UINT8(buffer, 4);
+    int code = BUF_GET_UINT8(buffer, 0);
 
     switch (code) {
         case LCP_CONF_REQ:

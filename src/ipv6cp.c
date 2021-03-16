@@ -22,20 +22,20 @@ void ipv6cp_reply_conf_req(FILE *stream, uint8_t *buffer, int len)
 
     // Better way of formatting this?
     fprintf(stderr, "tinyppp6 remote interface ID is: fe80::%2.2x%2.2x:%2.2x%2.2x:%2.2x%2.2x:%2.2x%2.2x\n",
+            BUF_GET_UINT8(buffer, 6),
+            BUF_GET_UINT8(buffer, 7),
+            BUF_GET_UINT8(buffer, 8),
+            BUF_GET_UINT8(buffer, 9),
             BUF_GET_UINT8(buffer, 10),
             BUF_GET_UINT8(buffer, 11),
             BUF_GET_UINT8(buffer, 12),
-            BUF_GET_UINT8(buffer, 13),
-            BUF_GET_UINT8(buffer, 14),
-            BUF_GET_UINT8(buffer, 15),
-            BUF_GET_UINT8(buffer, 16),
-            BUF_GET_UINT8(buffer, 17)
+            BUF_GET_UINT8(buffer, 13)
            );
 
     fprintf(stderr, "tinyppp6 send: Sending IPV6CP Conf-Ack\n");
 
     // Change IPV6CP code to from ConfReq to ConfAck
-    BUF_SET_UINT8(buffer, 4, IPV6CP_CONF_ACK);
+    BUF_SET_UINT8(buffer, 0, IPV6CP_CONF_ACK);
 
     // FIXME: Store their interface ID
 
@@ -44,8 +44,8 @@ void ipv6cp_reply_conf_req(FILE *stream, uint8_t *buffer, int len)
 
 void ipv6cp_handle_frame(FILE *stream, uint8_t *buffer, int len)
 {
-    int code = buffer[4];
-    int id = buffer[5];
+    int code = buffer[0];
+    int id = buffer[1];
 
     fprintf(stderr, "tinyppp6 recv: IPv6CP (%d, len=%d, id=%x)\n", code, len, id);
 
