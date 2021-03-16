@@ -17,6 +17,7 @@ void ipv6_handle_packet(FILE *stream, uint8_t *buffer, int buffer_len)
         return;
     }
 
+    // FIMXE: check that the packet is longer than IPv6 header
     // FIXME: check that the packet isn't longer than the buffer?
 
     if (ipv6_calculate_checksum(buffer, buffer_len) != 0) {
@@ -26,15 +27,15 @@ void ipv6_handle_packet(FILE *stream, uint8_t *buffer, int buffer_len)
 
     switch (proto) {
         case PROTO_ICMPV6:
-            ipv6_handle_icmpv6(stream, buffer, len);
+            ipv6_handle_icmpv6(stream, buffer, buffer_len);
             break;
 
         case PROTO_UDP:
-            ipv6_handle_udp(stream, buffer, len);
+            ipv6_handle_udp(stream, buffer, buffer_len);
             break;
 
         case PROTO_TCP:
-            ipv6_handle_tcp(stream, buffer, len);
+            ipv6_handle_tcp(stream, buffer, buffer_len);
             break;
 
         default:
