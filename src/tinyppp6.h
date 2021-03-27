@@ -16,7 +16,7 @@
     buf[idx+1] = ((val) & 0x00FFu);
 #define BUF_GET_UINT32(buf, idx) \
     ((buf[idx] << 24) | (buf[idx+1] << 16) | \
-    (buf[idx+2] << 8) | buf[idx+3])
+     (buf[idx+2] << 8) | buf[idx+3])
 #define BUF_SET_UINT32(buf, idx, val) \
     buf[idx] =   ((val) & 0xFF000000u) >> 24; \
     buf[idx+1] = ((val) & 0x00FF0000u) >> 16; \
