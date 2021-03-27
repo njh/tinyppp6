@@ -107,4 +107,16 @@ enum {
     LCP_DISCARD_REQ = 11,
 };
 
+enum {
+    LCP_OPTION_VENDOR = 0,
+    LCP_OPTION_MRU = 1,
+    LCP_OPTION_ASYNC_MAP = 2,
+    LCP_OPTION_AUTH = 3,
+    LCP_OPTION_QUALITY = 4,
+    LCP_OPTION_MAGIC_NUM = 5,
+    LCP_OPTION_PCOMP = 7,
+    LCP_OPTION_ACCOMP = 8
+};
+
+
 #endif

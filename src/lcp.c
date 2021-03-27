@@ -106,7 +106,7 @@ void lcp_send_conf_req(FILE *stream)
     BUF_SET_UINT8(buffer, 1, 0x01);  // Id
     BUF_SET_UINT16(buffer, 2, 10);   // Length
 
-    BUF_SET_UINT8(buffer, 4, 0x05); // Option: Magic Number
+    BUF_SET_UINT8(buffer, 4, LCP_OPTION_MAGIC_NUM);
     BUF_SET_UINT8(buffer, 5, 6);    // Length
     BUF_SET_UINT32(buffer, 6, our_magic);
 
