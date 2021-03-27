@@ -15,16 +15,23 @@ void lcp_init()
     our_magic = random();
 }
 
-void lcp_reply_conf_req(FILE *stream, uint8_t *buffer, int len)
+void lcp_write_packet(FILE *stream, const uint8_t *buffer)
 {
-    // FIXME: check if there are any options we don't like
+    int len = BUF_GET_UINT16(buffer, 2);
+    // FIXME: check len isn't too long or too short
+    hdlc_write_frame(stream, PPP_PROTO_LCP, buffer, len);
+}
 
+
+
+void lcp_reply_conf_req(FILE *stream, uint8_t *buffer)
+{
     fprintf(stderr, "tinyppp6 send: Sending LCP Conf-Ack\n");
 
     // Change LCP code to from ConfReq to ConfAck
     BUF_SET_UINT8(buffer, 0, LCP_CONF_ACK);
 
-    hdlc_write_frame(stream, PPP_PROTO_LCP, buffer, len);
+    lcp_write_packet(stream, buffer);
 }
 
 void lcp_echo_reply(FILE *stream)
@@ -38,16 +45,20 @@ void lcp_echo_reply(FILE *stream)
     BUF_SET_UINT16(buffer, 2, 8);   // Length
     BUF_SET_UINT32(buffer, 4, our_magic);
 
-    hdlc_write_frame(stream, PPP_PROTO_LCP, buffer, 8);
+    lcp_write_packet(stream, buffer);
 }
 
-void lcp_handle_frame(FILE *stream, uint8_t *buffer, int len)
+void lcp_handle_frame(FILE *stream, uint8_t *buffer, int buffer_len)
 {
     int code = BUF_GET_UINT8(buffer, 0);
 
+    if (BUF_GET_UINT16(buffer, 2) != buffer_len) {
+        fprintf(stderr, "tinyppp6 warning: LCP length != frame length\n");
+    }
+
     switch (code) {
         case LCP_CONF_REQ:
-            lcp_reply_conf_req(stream, buffer, len);
+            lcp_reply_conf_req(stream, buffer);
             break;
 
         case LCP_CONF_ACK:
@@ -110,7 +121,7 @@ void lcp_send_conf_req(FILE *stream)
     BUF_SET_UINT8(buffer, 5, 6);    // Length
     BUF_SET_UINT32(buffer, 6, our_magic);
 
-    hdlc_write_frame(stream, PPP_PROTO_LCP, buffer, 10);
+    lcp_write_packet(stream, buffer);
 }
 
 
@@ -129,5 +140,5 @@ void lcp_reject_protocol(FILE *stream, uint16_t protocol, uint8_t *buffer, int l
     // FIXME: ensure length doesn't exceed the MRU
     memcpy(&replybuf[6], buffer, len);
 
-    hdlc_write_frame(stream, PPP_PROTO_LCP, replybuf, len + 6);
+    lcp_write_packet(stream, replybuf);
 }
