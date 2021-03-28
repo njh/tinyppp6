@@ -17,7 +17,7 @@ void lcp_init()
 
 void lcp_write_packet(FILE *stream, const uint8_t *buffer)
 {
-    int len = BUF_GET_UINT16(buffer, 2);
+    int len = LCP_PACKET_LEN(buffer);
     // FIXME: check len isn't too long or too short
     hdlc_write_frame(stream, PPP_PROTO_LCP, buffer, len);
 }
@@ -52,7 +52,7 @@ void lcp_handle_frame(FILE *stream, uint8_t *buffer, int buffer_len)
 {
     int code = BUF_GET_UINT8(buffer, 0);
 
-    if (BUF_GET_UINT16(buffer, 2) != buffer_len) {
+    if (LCP_PACKET_LEN(buffer) != buffer_len) {
         fprintf(stderr, "tinyppp6 warning: LCP length != frame length\n");
     }
 

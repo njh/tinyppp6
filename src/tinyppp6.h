@@ -94,6 +94,9 @@ void lcp_echo_reply(FILE *stream);
 void lcp_send_conf_req(FILE *stream);
 void lcp_reject_protocol(FILE *stream, uint16_t protocol, uint8_t *buffer, int len);
 
+#define LCP_PACKET_LEN(buffer)    BUF_GET_UINT16(buffer, 2)
+#define LCP_OPTIONS_LEN(buffer)   (LCP_PACKET_LEN(buffer) - 4)
+
 // LCP Codes
 enum {
     LCP_CONF_REQ = 1,
