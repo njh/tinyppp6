@@ -46,7 +46,7 @@ void ipv6_handle_packet(FILE *stream, uint8_t *buffer, int buffer_len)
 
 void icmpv6_echo_reply(FILE *stream, uint8_t *buffer, int buffer_len)
 {
-    uint8_t replybuf[2000];
+    uint8_t replybuf[PACKET_BUF_SIZE];
 
     fprintf(stderr, "tinyppp6 send: received ICMPv6 Echo-Request, sending ICMPv6 Echo-Reply\n");
 

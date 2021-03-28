@@ -100,7 +100,7 @@ void ipv6cp_handle_frame(FILE *stream, uint8_t *buffer, int buffer_len)
 
 void ipv6cp_send_conf_req(FILE *stream)
 {
-    uint8_t buffer[32];
+    uint8_t buffer[PACKET_BUF_SIZE];
 
     fprintf(stderr, "tinyppp6 send: Sending IPV6CP Conf-Req\n");
 

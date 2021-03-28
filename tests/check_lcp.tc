@@ -8,8 +8,8 @@
 
 #test check_lcp_reject_protocol
 uint8_t ppp_frame[] = { 0x01, 0x02 };
-uint8_t fbuf[2000];
-uint8_t buffer[2000];
+uint8_t fbuf[PACKET_BUF_SIZE];
+uint8_t buffer[PACKET_BUF_SIZE];
 
 // Generate a new frame
 FILE* stream = fmemopen(fbuf, sizeof(fbuf), "wb+");
@@ -32,8 +32,8 @@ ck_assert_mem_eq(
 
 
 #test check_lcp_send_conf_req
-uint8_t fbuf[2000];
-uint8_t buffer[2000];
+uint8_t fbuf[PACKET_BUF_SIZE];
+uint8_t buffer[PACKET_BUF_SIZE];
 
 // Output a frame
 FILE* stream = fmemopen(fbuf, sizeof(fbuf), "wb+");
@@ -55,8 +55,8 @@ ck_assert_mem_eq(
 
 
 #test check_lcp_echo_reply
-uint8_t fbuf[2000];
-uint8_t buffer[2000];
+uint8_t fbuf[PACKET_BUF_SIZE];
+uint8_t buffer[PACKET_BUF_SIZE];
 
 // Output a frame
 FILE* stream = fmemopen(fbuf, sizeof(fbuf), "wb+");

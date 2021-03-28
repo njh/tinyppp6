@@ -36,7 +36,7 @@ void lcp_reply_conf_req(FILE *stream, uint8_t *buffer)
 
 void lcp_echo_reply(FILE *stream)
 {
-    uint8_t buffer[32];
+    uint8_t buffer[PACKET_BUF_SIZE];
 
     fprintf(stderr, "tinyppp6 send: received LCP Echo-Request, sending LCP Echo-Reply\n");
 
@@ -109,7 +109,7 @@ void lcp_handle_frame(FILE *stream, uint8_t *buffer, int buffer_len)
 
 void lcp_send_conf_req(FILE *stream)
 {
-    uint8_t buffer[32];
+    uint8_t buffer[PACKET_BUF_SIZE];
 
     fprintf(stderr, "tinyppp6 send: Sending LCP Conf-Req\n");
 
@@ -127,7 +127,7 @@ void lcp_send_conf_req(FILE *stream)
 
 void lcp_reject_protocol(FILE *stream, uint16_t protocol, uint8_t *buffer, int len)
 {
-    uint8_t replybuf[2000];
+    uint8_t replybuf[PACKET_BUF_SIZE];
     static uint8_t id = 1;
 
     fprintf(stderr, "tinyppp6 send: Sending LCP Protocol-Reject for 0x%4.4x\n", protocol);

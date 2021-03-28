@@ -4,6 +4,8 @@
 #ifndef TINYPPP6_H
 #define TINYPPP6_H
 
+#define PACKET_BUF_SIZE   (2000)
+
 // Macros to get integers in and out of buffers in network byte order
 #define BUF_GET_UINT8(buf, idx) \
     (buf[idx])

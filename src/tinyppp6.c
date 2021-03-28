@@ -46,7 +46,7 @@ int main(int argc, char **argv)
     lcp_send_conf_req(output);
 
     while (!feof(input)) {
-        uint8_t buffer[2048];
+        uint8_t buffer[PACKET_BUF_SIZE];
         int len = hdlc_read_frame(input, buffer);
         if (len > 0 && hdlc_check_frame(buffer, len)) {
             handle_frame(output, buffer, len);

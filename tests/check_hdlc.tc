@@ -15,7 +15,7 @@ uint8_t encoded_frame[] = {
 };
 
 FILE* stream = fmemopen(encoded_frame, sizeof(encoded_frame), "rb");
-uint8_t buffer[100];
+uint8_t buffer[PACKET_BUF_SIZE];
 int len = hdlc_read_frame(stream, buffer);
 ck_assert_uint_eq(len, 26);
 ck_assert_uint_eq(buffer[0], 0xff);
@@ -28,7 +28,7 @@ ck_assert_uint_eq(buffer[3], 0x21);
 uint8_t encoded_frame[] = {0x7e, 0x7e};
 
 FILE* stream = fmemopen(encoded_frame, sizeof(encoded_frame), "rb");
-uint8_t buffer[100];
+uint8_t buffer[PACKET_BUF_SIZE];
 int len = hdlc_read_frame(stream, buffer);
 ck_assert_uint_eq(len, 0);
 
@@ -45,7 +45,7 @@ ck_assert_uint_eq(hdlc_check_frame(ppp_frame, sizeof(ppp_frame)), 1);
 
 #test check_hdlc_write_frame
 uint8_t ppp_frame[] = { 0x01, 0xFF, 0x7D, 0x7E };
-uint8_t buffer[200];
+uint8_t buffer[PACKET_BUF_SIZE];
 
 FILE* stream = fmemopen(buffer, sizeof(buffer), "wb");
 hdlc_write_frame(stream, 0xC021, ppp_frame, sizeof(ppp_frame));
