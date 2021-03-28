@@ -71,7 +71,7 @@ enum icmpv6_type {
 
 // ipv6cp.c
 void ipv6cp_init();
-void ipv6cp_handle_frame(FILE *stream, uint8_t *buffer, int len);
+void ipv6cp_handle_frame(FILE *stream, uint8_t *buffer, int buffer_len);
 void ipv6cp_send_conf_req(FILE *stream);
 
 enum {
