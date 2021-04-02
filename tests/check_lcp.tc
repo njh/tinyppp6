@@ -75,3 +75,23 @@ ck_assert_mem_eq(
   "\x6b\xe4",
   len
 );
+
+
+#test check_lcp_append_buf
+uint8_t packet[PACKET_BUF_SIZE];
+uint8_t bytes[4] = {0x01, 0x02, 0x03, 0x04};
+
+BUF_SET_UINT8(packet, 0, LCP_CONF_REQ);
+BUF_SET_UINT8(packet, 1, 0x01);
+BUF_SET_UINT16(packet, 2, 4);
+
+ck_assert_uint_eq(4, LCP_PACKET_LEN(packet));
+lcp_append_buf(packet, bytes, 4);
+ck_assert_uint_eq(8, LCP_PACKET_LEN(packet));
+
+ck_assert_mem_eq(
+  packet,
+  "\x01\x01\x00\x08"
+  "\x01\x02\x03\x04",
+  8
+);

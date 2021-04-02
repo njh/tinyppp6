@@ -22,6 +22,16 @@ void lcp_write_packet(FILE *stream, const uint8_t *buffer)
     hdlc_write_frame(stream, PPP_PROTO_LCP, buffer, len);
 }
 
+void lcp_append_buf(uint8_t *packet, uint8_t *buffer, uint16_t bufffer_len)
+{
+    uint8_t *end = packet + LCP_PACKET_LEN(packet);
+    uint16_t new_packet_len = LCP_PACKET_LEN(packet) + bufffer_len;
+
+    memcpy(end, buffer, bufffer_len);
+    
+    // Update the total packet length
+    BUF_SET_UINT16(packet, 2, new_packet_len);
+}
 
 
 void lcp_reply_conf_req(FILE *stream, uint8_t *buffer)
@@ -134,11 +144,11 @@ void lcp_reject_protocol(FILE *stream, uint16_t protocol, uint8_t *buffer, int l
 
     BUF_SET_UINT8(replybuf, 0, LCP_PROTO_REJ);
     BUF_SET_UINT8(replybuf, 1, id++);  // Id
-    BUF_SET_UINT16(replybuf, 2, len + 6); // Length
+    BUF_SET_UINT16(replybuf, 2, 6); // Length of header
     BUF_SET_UINT16(replybuf, 4, protocol); // Rejected protocol number
 
     // FIXME: ensure length doesn't exceed the MRU
-    memcpy(&replybuf[6], buffer, len);
+    lcp_append_buf(replybuf, buffer, len);
 
     lcp_write_packet(stream, replybuf);
 }

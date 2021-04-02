@@ -94,6 +94,8 @@ void lcp_echo_reply(FILE *stream);
 void lcp_send_conf_req(FILE *stream);
 void lcp_reject_protocol(FILE *stream, uint16_t protocol, uint8_t *buffer, int len);
 
+void lcp_append_buf(uint8_t *packet, uint8_t *buffer, uint16_t bufffer_len);
+
 #define LCP_PACKET_LEN(buffer)    BUF_GET_UINT16(buffer, 2)
 #define LCP_OPTIONS_LEN(buffer)   (LCP_PACKET_LEN(buffer) - 4)
 
