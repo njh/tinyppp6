@@ -33,6 +33,27 @@ void lcp_append_buf(uint8_t *packet, uint8_t *buffer, uint16_t bufffer_len)
     BUF_SET_UINT16(packet, 2, new_packet_len);
 }
 
+void lcp_append_option_uint16(uint8_t *packet, int id, uint16_t value)
+{
+    uint8_t option[4];
+    
+    option[0] = id;
+    option[1] = sizeof(option);
+    BUF_SET_UINT16(option, 2, value);
+    
+    lcp_append_buf(packet, option, sizeof(option));
+}
+
+void lcp_append_option_uint32(uint8_t *packet, int id, uint32_t value)
+{
+    uint8_t option[6];
+    
+    option[0] = id;
+    option[1] = sizeof(option);
+    BUF_SET_UINT32(option, 2, value);
+    
+    lcp_append_buf(packet, option, sizeof(option));
+}
 
 void lcp_reply_conf_req(FILE *stream, uint8_t *buffer)
 {
@@ -125,11 +146,9 @@ void lcp_send_conf_req(FILE *stream)
 
     BUF_SET_UINT8(buffer, 0, LCP_CONF_REQ);
     BUF_SET_UINT8(buffer, 1, 0x01);  // Id
-    BUF_SET_UINT16(buffer, 2, 10);   // Length
+    BUF_SET_UINT16(buffer, 2, 4);    // Length
 
-    BUF_SET_UINT8(buffer, 4, LCP_OPTION_MAGIC_NUM);
-    BUF_SET_UINT8(buffer, 5, 6);    // Length
-    BUF_SET_UINT32(buffer, 6, our_magic);
+    lcp_append_option_uint32(buffer, LCP_OPTION_MAGIC_NUM, our_magic);
 
     lcp_write_packet(stream, buffer);
 }

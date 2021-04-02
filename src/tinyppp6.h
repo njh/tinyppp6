@@ -95,6 +95,8 @@ void lcp_send_conf_req(FILE *stream);
 void lcp_reject_protocol(FILE *stream, uint16_t protocol, uint8_t *buffer, int len);
 
 void lcp_append_buf(uint8_t *packet, uint8_t *buffer, uint16_t bufffer_len);
+void lcp_append_option_uint16(uint8_t *packet, int id, uint16_t value);
+void lcp_append_option_uint32(uint8_t *packet, int id, uint32_t value);
 
 #define LCP_PACKET_LEN(buffer)    BUF_GET_UINT16(buffer, 2)
 #define LCP_OPTIONS_LEN(buffer)   (LCP_PACKET_LEN(buffer) - 4)

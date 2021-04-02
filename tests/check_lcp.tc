@@ -95,3 +95,47 @@ ck_assert_mem_eq(
   "\x01\x02\x03\x04",
   8
 );
+
+
+#test check_lcp_append_option_uint16
+uint8_t buffer[PACKET_BUF_SIZE];
+
+BUF_SET_UINT8(buffer, 0, LCP_CONF_REQ);
+BUF_SET_UINT8(buffer, 1, 0x01);
+BUF_SET_UINT16(buffer, 2, 4);
+
+ck_assert_uint_eq(4, LCP_PACKET_LEN(buffer));
+ck_assert_uint_eq(0, LCP_OPTIONS_LEN(buffer));
+
+lcp_append_option_uint16(buffer, LCP_OPTION_MRU, 1280);
+ck_assert_uint_eq(4, LCP_OPTIONS_LEN(buffer));
+
+ck_assert_mem_eq(
+  buffer,
+  "\x01\x01\x00\x08"
+  "\x01\x04"
+  "\x05\x00",
+  8
+);
+
+
+#test check_lcp_append_option_uint32
+uint8_t buffer[PACKET_BUF_SIZE];
+
+BUF_SET_UINT8(buffer, 0, LCP_CONF_REQ);
+BUF_SET_UINT8(buffer, 1, 0x01);
+BUF_SET_UINT16(buffer, 2, 4);
+
+ck_assert_uint_eq(4, LCP_PACKET_LEN(buffer));
+ck_assert_uint_eq(0, LCP_OPTIONS_LEN(buffer));
+
+lcp_append_option_uint32(buffer, LCP_OPTION_MAGIC_NUM, 0x12345678);
+ck_assert_uint_eq(6, LCP_OPTIONS_LEN(buffer));
+
+ck_assert_mem_eq(
+  buffer,
+  "\x01\x01\x00\x0a"
+  "\x05\x06"
+  "\x12\x34\x56\x78",
+  10
+);
