@@ -55,7 +55,7 @@ void lcp_append_option_uint32(uint8_t *packet, int id, uint32_t value)
     lcp_append_buf(packet, option, sizeof(option));
 }
 
-void lcp_reply_conf_req(FILE *stream, uint8_t *buffer)
+void lcp_handle_conf_req(FILE *stream, uint8_t *buffer)
 {
     fprintf(stderr, "tinyppp6 send: Sending LCP Conf-Ack\n");
 
@@ -89,7 +89,7 @@ void lcp_handle_frame(FILE *stream, uint8_t *buffer, int buffer_len)
 
     switch (code) {
         case LCP_CONF_REQ:
-            lcp_reply_conf_req(stream, buffer);
+            lcp_handle_conf_req(stream, buffer);
             break;
 
         case LCP_CONF_ACK:
