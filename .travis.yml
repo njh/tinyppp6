@@ -9,6 +9,8 @@ before_install:
   - wget http://ftp.debian.org/debian/pool/main/s/subunit/libsubunit-dev_1.4.0-3_amd64.deb
   - wget http://ftp.debian.org/debian/pool/main/s/subunit/libsubunit0_1.4.0-3_amd64.deb
   - sudo dpkg -i *.deb
+  - wget https://github.com/njh/hext/releases/download/0.1.0/hext-0.1.0.tar.gz
+  - tar -zxvf hext-0.1.0.tar.gz && sudo make -C hext-0.1.0 install
 
 script:
   - make
