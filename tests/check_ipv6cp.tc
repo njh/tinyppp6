@@ -6,11 +6,10 @@
 
 
 #test check_ipv6cp_send_conf_req
-uint8_t fbuf[PACKET_BUF_SIZE];
 uint8_t buffer[PACKET_BUF_SIZE];
 
 // Output a frame
-FILE* stream = fmemopen(fbuf, sizeof(fbuf), "wb+");
+FILE *stream = tmpfile();
 ipv6cp_send_conf_req(stream);
 
 // Read the frame back in again
