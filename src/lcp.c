@@ -28,7 +28,7 @@ void lcp_append_buf(uint8_t *packet, uint8_t *buffer, uint16_t bufffer_len)
     uint16_t new_packet_len = LCP_PACKET_LEN(packet) + bufffer_len;
 
     memcpy(end, buffer, bufffer_len);
-    
+
     // Update the total packet length
     BUF_SET_UINT16(packet, 2, new_packet_len);
 }
@@ -36,22 +36,22 @@ void lcp_append_buf(uint8_t *packet, uint8_t *buffer, uint16_t bufffer_len)
 void lcp_append_option_uint16(uint8_t *packet, int id, uint16_t value)
 {
     uint8_t option[4];
-    
+
     option[0] = id;
     option[1] = sizeof(option);
     BUF_SET_UINT16(option, 2, value);
-    
+
     lcp_append_buf(packet, option, sizeof(option));
 }
 
 void lcp_append_option_uint32(uint8_t *packet, int id, uint32_t value)
 {
     uint8_t option[6];
-    
+
     option[0] = id;
     option[1] = sizeof(option);
     BUF_SET_UINT32(option, 2, value);
-    
+
     lcp_append_buf(packet, option, sizeof(option));
 }
 
