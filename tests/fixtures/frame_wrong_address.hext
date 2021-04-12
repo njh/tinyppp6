@@ -1,0 +1,5 @@
+F0     # Address
+03     # Control
+C021   # Protocol
+01 00 00 0E 02 06 00 00 00 00 07 02 08 02
+0534   # FCS Checksum

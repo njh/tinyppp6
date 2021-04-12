@@ -2,19 +2,11 @@
 
 #include "fcs.c"
 #include "hdlc.c"
+#include "test_helpers.c"
 
 
 #test check_read_frame
-uint8_t encoded_frame[] = {
-  0x7e, 0xff, 0x7d, 0x23, 0xc0, 0x21, 0x7d, 0x21,
-  0x7d, 0x21, 0x7d, 0x20, 0x7d, 0x34, 0x7d, 0x22,
-  0x7d, 0x26, 0x7d, 0x20, 0x7d, 0x20, 0x7d, 0x20,
-  0x7d, 0x20, 0x7d, 0x25, 0x7d, 0x26, 0xfc, 0x7d,
-  0x3c, 0xec, 0xe3, 0x7d, 0x27, 0x7d, 0x22, 0x7d,
-  0x28, 0x7d, 0x22, 0x48, 0xe8, 0x7e
-};
-
-FILE* stream = fmemopen(encoded_frame, sizeof(encoded_frame), "rb");
+FILE *stream = open_fixture("frame_encoded");
 uint8_t buffer[PACKET_BUF_SIZE];
 int len = hdlc_read_frame(stream, buffer);
 ck_assert_uint_eq(len, 26);
@@ -25,22 +17,16 @@ ck_assert_uint_eq(buffer[3], 0x21);
 
 
 #test check_read_frame_empty
-uint8_t encoded_frame[] = {0x7e, 0x7e};
-
-FILE* stream = fmemopen(encoded_frame, sizeof(encoded_frame), "rb");
+FILE *stream = open_fixture("frame_empty");
 uint8_t buffer[PACKET_BUF_SIZE];
 int len = hdlc_read_frame(stream, buffer);
 ck_assert_uint_eq(len, 0);
 
 
 #test check_hdlc_check_frame
-const uint8_t ppp_frame[] = {
-  0xFF, 0x03, 0xC0, 0x21, 0x01, 0x00, 0x00, 0x0E,
-  0x02, 0x06, 0x00, 0x00, 0x00, 0x00, 0x07, 0x02,
-  0x08, 0x02, 0xDD, 0x31
-};
-
-ck_assert_uint_eq(hdlc_check_frame(ppp_frame, sizeof(ppp_frame)), 1);
+uint8_t ppp_frame[PACKET_BUF_SIZE];
+int size = read_fixture("frame_valid", ppp_frame, sizeof(ppp_frame));
+ck_assert_uint_eq(hdlc_check_frame(ppp_frame, size), 1);
 
 
 #test check_hdlc_write_frame
@@ -54,43 +40,28 @@ ck_assert_uint_eq(ftell(stream), 16);
 rewind(stream);
 fread(buffer, 1, 16, stream);
 ck_assert_mem_eq(
-  buffer, "\x7E\xFF\x7D\x23\xC0\x21\x7D\x21\xFF\x7D\x5D\x7D\x5E\x9F\xB5\x7E", 16
+    buffer, "\x7E\xFF\x7D\x23\xC0\x21\x7D\x21\xFF\x7D\x5D\x7D\x5E\x9F\xB5\x7E", 16
 );
 
 
 #test check_hdlc_check_frame_too_short
-const uint8_t ppp_frame[] = {
-  0xFF, 0x03, 0x1c, 0xc2
-};
-
+const uint8_t ppp_frame[] = { 0xFF, 0x03, 0x1C, 0xC2 };
 ck_assert_uint_eq(hdlc_check_frame(ppp_frame, sizeof(ppp_frame)), 0);
 
 
-#test check_hdlc_check_frame_wrong_address
-const uint8_t ppp_frame[] = {
-  0xF0, 0x03, 0xC0, 0x21, 0x01, 0x00, 0x00, 0x0E,
-  0x02, 0x06, 0x00, 0x00, 0x00, 0x00, 0x07, 0x02,
-  0x08, 0x02, 0x05, 0x34
-};
-
-ck_assert_uint_eq(hdlc_check_frame(ppp_frame, sizeof(ppp_frame)), 0);
+#test check_hdlc_check_
+uint8_t ppp_frame[PACKET_BUF_SIZE];
+int size = read_fixture("frame_wrong_address", ppp_frame, sizeof(ppp_frame));
+ck_assert_uint_eq(hdlc_check_frame(ppp_frame, size), 0);
 
 
 #test check_hdlc_check_frame_wrong_control
-const uint8_t ppp_frame[] = {
-  0xFF, 0xFF, 0xC0, 0x21, 0x01, 0x00, 0x00, 0x0E,
-  0x02, 0x06, 0x00, 0x00, 0x00, 0x00, 0x07, 0x02,
-  0x08, 0x02, 0x36, 0x8C
-};
-
-ck_assert_uint_eq(hdlc_check_frame(ppp_frame, sizeof(ppp_frame)), 0);
+uint8_t ppp_frame[PACKET_BUF_SIZE];
+int size = read_fixture("frame_wrong_control", ppp_frame, PACKET_BUF_SIZE);
+ck_assert_uint_eq(hdlc_check_frame(ppp_frame, size), 0);
 
 
 #test check_hdlc_check_frame_wrong_fcs
-const uint8_t ppp_frame[] = {
-  0xFF, 0x03, 0xC0, 0x21, 0x01, 0x00, 0x00, 0x0E,
-  0x02, 0x06, 0x00, 0x00, 0x00, 0x00, 0x07, 0x02,
-  0x08, 0x02, 0xDD, 0xFF
-};
-
-ck_assert_uint_eq(hdlc_check_frame(ppp_frame, sizeof(ppp_frame)), 0);
+uint8_t ppp_frame[PACKET_BUF_SIZE];
+int size = read_fixture("frame_wrong_fcs", ppp_frame, PACKET_BUF_SIZE);
+ck_assert_uint_eq(hdlc_check_frame(ppp_frame, size), 0);

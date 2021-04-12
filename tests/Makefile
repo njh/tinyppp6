@@ -13,11 +13,14 @@ TEST_SUITES=$(wildcard *.tc)
 TEST_SOURCES=$(TEST_SUITES:%.tc=%.c)
 TEST_COMMANDS=$(TEST_SUITES:%.tc=%.cmd)
 
+FIXTURES=$(wildcard fixtures/*.hext)
+FIXTURE_BINS=$(FIXTURES:%.hext=%.bin)
+
 
 test: check
 
-check: $(TEST_COMMANDS)
-	@$(foreach f,$^,./$(f) &&) echo "All tests passed."
+check: $(FIXTURE_BINS) $(TEST_COMMANDS)
+	@$(foreach f,$(TEST_COMMANDS),./$(f) &&) echo "All tests passed."
 
 %.o: %.c
 	$(CC) $(CXXFLAGS) $(CFLAGS) $(CHECK_CFLAGS) -c -o $@ $<
@@ -28,8 +31,11 @@ check: $(TEST_COMMANDS)
 %.cmd: %.o
 	$(CC) -o $@ $< -L. $(CHECK_LIBS) $(CFLAGS)
 
+%.bin: %.hext
+	hext $< > $@ || rm -f $@
+
 
 clean:
-	rm -f $(TEST_SOURCES) *.o *.cmd
+	rm -f $(TEST_SOURCES) fixtures/*.bin *.o *.cmd
 
 .PHONY: test check clean
