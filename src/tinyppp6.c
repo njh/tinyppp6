@@ -42,6 +42,7 @@ int main(int argc, char **argv)
     // FIXME: Seed the random number generator
     // FIXME: how to seed? srandom();
 
+    hdlc_init();
     lcp_init();
     lcp_send_conf_req(output);
 

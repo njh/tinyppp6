@@ -41,6 +41,7 @@ uint16_t fcs16_add_byte(uint16_t current_fcs, uint8_t byte);
 uint16_t fcs16_calculate(const uint8_t *cp, int len);
 
 // frame.c
+void hdlc_init();
 int hdlc_read_frame(FILE *stream, uint8_t *buffer);
 int hdlc_check_frame(const uint8_t *buffer, int len);
 int hdlc_write_frame(FILE *stream, uint16_t protocol, const uint8_t *buffer, int len);

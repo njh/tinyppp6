@@ -7,36 +7,46 @@
 // PPP in HDLC-like Framing is described in:
 // https://tools.ietf.org/html/rfc1662
 
+enum {
+    HDLC_STATE_HUNTING,
+    HDLC_START_FRAME,
+    HDLC_MID_FRAME,
+    HDLC_IN_ESCAPE
+};
+
+int hdlc_state = HDLC_STATE_HUNTING;
+
+void hdlc_init()
+{
+    hdlc_state = HDLC_STATE_HUNTING;
+}
 
 int hdlc_read_frame(FILE *stream, uint8_t *buffer)
 {
     int pos = 0;
     int in_escape = 0;
-    int hunt = 1;
 
     do {
         int chr = fgetc(stream);
         if (chr == EOF) break;
 
         if (chr == 0x7e) {
-            if (hunt == 1) {
+            if (hdlc_state == HDLC_STATE_HUNTING) {
                 // Start of frame
-                hunt = 0;
+                hdlc_state = HDLC_START_FRAME;
                 continue;
             } else {
                 // End of frame
-                // Push back to IO stream, so that we know we are at the start of a
-                // function when we read the next frame
-                ungetc(0x7e, stream);
+                hdlc_state = HDLC_START_FRAME;
                 break;
             }
         }
 
-        if (hunt == 0) {
+        if (hdlc_state != HDLC_STATE_HUNTING) {
             if (chr < 0x20) {
                 fprintf(stderr, "Ignoring: 0x%2.2x\n", chr);
             } else if (chr == 0x7d) {
-                // next character is escaped
+                // Next character is escaped
                 in_escape = 1;
             } else if (in_escape) {
                 // Control char
@@ -48,7 +58,6 @@ int hdlc_read_frame(FILE *stream, uint8_t *buffer)
         } else {
             fprintf(stderr, "Hunting for start of frame but got: %2.2x\n", chr);
         }
-
     } while (1);
 
     return pos;

@@ -8,6 +8,7 @@
 #test check_read_frame
 FILE *stream = open_fixture("frame_encoded");
 uint8_t buffer[PACKET_BUF_SIZE];
+hdlc_init();
 int len = hdlc_read_frame(stream, buffer);
 ck_assert_uint_eq(len, 26);
 ck_assert_uint_eq(buffer[0], 0xff);
@@ -19,6 +20,7 @@ ck_assert_uint_eq(buffer[3], 0x21);
 #test check_read_frame_empty
 FILE *stream = open_fixture("frame_empty");
 uint8_t buffer[PACKET_BUF_SIZE];
+hdlc_init();
 int len = hdlc_read_frame(stream, buffer);
 ck_assert_uint_eq(len, 0);
 
