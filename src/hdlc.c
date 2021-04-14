@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <sys/select.h>
+#include <string.h>
+#include <unistd.h>
 
 #include "tinyppp6.h"
 
@@ -15,19 +18,80 @@ enum {
 };
 
 int hdlc_state = HDLC_STATE_HUNTING;
+uint8_t read_buffer[PACKET_BUF_SIZE * 2];
+int bytes_read = 0;
 
 void hdlc_init()
 {
     hdlc_state = HDLC_STATE_HUNTING;
+    bytes_read = 0;
 }
 
+
+// Returns:
+//  - negative number on error
+//  - 0 if nothing available
+//  - 1 or more if bytes are available
+int hdlc_bytes_available(FILE *stream)
+{
+    int fd = fileno(stream);
+    fd_set rfds;
+    struct timeval tv;
+    int retval;
+
+    // Do we already have bytes in the buffer?
+    if (bytes_read > 0) {
+        return bytes_read;
+    }
+
+    FD_ZERO(&rfds);
+    FD_SET(fd, &rfds);
+
+    // Wait up to 1 second
+    tv.tv_sec = 1;
+    tv.tv_usec = 0;
+
+    retval = select(fd + 1, &rfds, NULL, NULL, &tv);
+    if (retval < 0) {
+        perror("select() failed");
+        return retval;
+    }
+
+    return retval;
+}
+
+int hdlc_read_byte(FILE *stream)
+{
+    if (bytes_read <= 0) {
+        // Fill up the read buffer
+        int fd = fileno(stream);
+        bytes_read = read(fd, read_buffer, sizeof(read_buffer));
+    }
+
+    if (bytes_read > 0) {
+        int byte = read_buffer[0];
+        bytes_read--;
+
+        if (bytes_read > 0) {
+            // FIXME: this is really inefficient
+            memmove(read_buffer, &read_buffer[1], bytes_read);
+        }
+
+        return byte;
+    } else {
+        // Nothing available
+        return -1;
+    }
+}
+
+// This function is blocking
 int hdlc_read_frame(FILE *stream, uint8_t *buffer)
 {
     int pos = 0;
     int in_escape = 0;
 
     do {
-        int chr = fgetc(stream);
+        int chr = hdlc_read_byte(stream);
         if (chr == EOF) break;
 
         if (chr == 0x7e) {
