@@ -21,12 +21,12 @@ int len = hdlc_read_frame(stream, buffer);
 ck_assert_uint_eq(len, 14);
 ck_assert_uint_eq(hdlc_check_frame(buffer, len), 1);
 ck_assert_mem_eq(
-  buffer,
-  "\xff\x03\xc0\x21"
-  "\x08\x01\x00\x08"
-  "\x80\x21\x01\x02"
-  "\x92\x3e",
-  len
+    buffer,
+    "\xff\x03\xc0\x21"
+    "\x08\x01\x00\x08"
+    "\x80\x21\x01\x02"
+    "\x92\x3e",
+    len
 );
 
 
@@ -44,11 +44,11 @@ int len = hdlc_read_frame(stream, buffer);
 ck_assert_uint_eq(len, 16);
 ck_assert_uint_eq(hdlc_check_frame(buffer, len), 1);
 ck_assert_mem_eq(
-  buffer,
-  "\xff\x03\xc0\x21"
-  "\x01\x01\x00\x0a\x05\x06\x00\x00\x00\x00"
-  "\x89\x67",
-  len
+    buffer,
+    "\xff\x03\xc0\x21"
+    "\x01\x01\x00\x0a\x05\x06\x00\x00\x00\x00"
+    "\x89\x67",
+    len
 );
 
 
@@ -66,11 +66,11 @@ int len = hdlc_read_frame(stream, buffer);
 ck_assert_uint_eq(len, 14);
 ck_assert_uint_eq(hdlc_check_frame(buffer, len), 1);
 ck_assert_mem_eq(
-  buffer,
-  "\xff\x03\xc0\x21"
-  "\x0a\x00\x00\x08\x00\x00\x00\x00"
-  "\x6b\xe4",
-  len
+    buffer,
+    "\xff\x03\xc0\x21"
+    "\x0a\x00\x00\x08\x00\x00\x00\x00"
+    "\x6b\xe4",
+    len
 );
 
 
@@ -87,10 +87,10 @@ lcp_append_buf(packet, bytes, 4);
 ck_assert_uint_eq(8, LCP_PACKET_LEN(packet));
 
 ck_assert_mem_eq(
-  packet,
-  "\x01\x01\x00\x08"
-  "\x01\x02\x03\x04",
-  8
+    packet,
+    "\x01\x01\x00\x08"
+    "\x01\x02\x03\x04",
+    8
 );
 
 
@@ -108,11 +108,11 @@ lcp_append_option_uint16(buffer, LCP_OPTION_MRU, 1280);
 ck_assert_uint_eq(4, LCP_OPTIONS_LEN(buffer));
 
 ck_assert_mem_eq(
-  buffer,
-  "\x01\x01\x00\x08"
-  "\x01\x04"
-  "\x05\x00",
-  8
+    buffer,
+    "\x01\x01\x00\x08"
+    "\x01\x04"
+    "\x05\x00",
+    8
 );
 
 
@@ -130,9 +130,9 @@ lcp_append_option_uint32(buffer, LCP_OPTION_MAGIC_NUM, 0x12345678);
 ck_assert_uint_eq(6, LCP_OPTIONS_LEN(buffer));
 
 ck_assert_mem_eq(
-  buffer,
-  "\x01\x01\x00\x0a"
-  "\x05\x06"
-  "\x12\x34\x56\x78",
-  10
+    buffer,
+    "\x01\x01\x00\x0a"
+    "\x05\x06"
+    "\x12\x34\x56\x78",
+    10
 );

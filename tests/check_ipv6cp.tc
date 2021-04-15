@@ -19,10 +19,10 @@ int len = hdlc_read_frame(stream, buffer);
 ck_assert_uint_eq(len, 20);
 ck_assert_uint_eq(hdlc_check_frame(buffer, len), 1);
 ck_assert_mem_eq(
-  buffer,
-  "\xff\x03\x80\x57"
-  "\x01\x01\x00\x0e\x01\x0a"
-  "\x00\x00\x00\x00\x00\x00\x00\x02"
-  "\x0f\x76",
-  len
+    buffer,
+    "\xff\x03\x80\x57"
+    "\x01\x01\x00\x0e\x01\x0a"
+    "\x00\x00\x00\x00\x00\x00\x00\x02"
+    "\x0f\x76",
+    len
 );
