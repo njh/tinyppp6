@@ -45,6 +45,7 @@ void hdlc_init();
 int hdlc_bytes_available(FILE *stream);
 int hdlc_read_frame(FILE *stream, uint8_t *buffer);
 int hdlc_check_frame(const uint8_t *buffer, int len);
+int hdlc_encode_frame(uint8_t *buffer, uint16_t protocol, const uint8_t *data, int data_len);
 int hdlc_write_frame(FILE *stream, uint16_t protocol, const uint8_t *buffer, int len);
 
 

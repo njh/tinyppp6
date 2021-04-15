@@ -159,51 +159,69 @@ int hdlc_check_frame(const uint8_t *buffer, int len)
     return 1;
 }
 
-void hdlc_write_frame_byte(FILE *stream, uint8_t chr)
+void hdlc_append_frame_byte(uint8_t *buffer, int *pos, uint8_t chr)
 {
-    if (chr == 0x7d || chr == 0x7e || chr < 0x20) {
-        fputc(0x7d, stream);
-        fputc(chr ^ 0x20, stream);
+    if (chr == 0x7D || chr == 0x7E || chr < 0x20) {
+        buffer[(*pos)++] = 0x7D;
+        buffer[(*pos)++] = chr ^ 0x20;
     } else {
-        fputc(chr, stream);
+        buffer[(*pos)++] = chr;
     }
 }
 
-int hdlc_write_frame(FILE *stream, uint16_t protocol, const uint8_t *buffer, int len)
+// FIXME: avoid buffer overrun
+// Return the length of the encoded frame
+int hdlc_encode_frame(uint8_t *buffer, uint16_t protocol, const uint8_t *data, int data_len)
 {
     register uint16_t fcs = 0xFFFF;
+    int pos = 0;
 
     // Start of frame
-    fputc(0x7e, stream);
+    buffer[pos++] = 0x7E;
 
     // Write frame header
     // FIXME: make this code more compact
-    hdlc_write_frame_byte(stream, 0xFF);
+    hdlc_append_frame_byte(buffer, &pos, 0xFF);
     fcs = fcs16_add_byte(fcs, 0xFF);
-    hdlc_write_frame_byte(stream, 0x03);
+    hdlc_append_frame_byte(buffer, &pos, 0x03);
     fcs = fcs16_add_byte(fcs, 0x03);
 
     // Write 16-bit protocol number
-    hdlc_write_frame_byte(stream, (protocol & 0xFF00) >> 8);
+    hdlc_append_frame_byte(buffer, &pos, (protocol & 0xFF00) >> 8);
     fcs = fcs16_add_byte(fcs, (protocol & 0xFF00) >> 8);
-    hdlc_write_frame_byte(stream, protocol & 0x00FF);
+    hdlc_append_frame_byte(buffer, &pos, protocol & 0x00FF);
     fcs = fcs16_add_byte(fcs, protocol & 0x00FF);
 
     // Write buffer to output (with byte stuffing)
-    for (int i = 0; i < len; i++) {
-        hdlc_write_frame_byte(stream, buffer[i]);
-        fcs = fcs16_add_byte(fcs, buffer[i]);
+    for (int i = 0; i < data_len; i++) {
+        hdlc_append_frame_byte(buffer, &pos, data[i]);
+        fcs = fcs16_add_byte(fcs, data[i]);
     }
 
     // Write FCS checksum
     // FIXME: is this different for big-endian/little-endian processors?
     fcs = fcs ^ 0xFFFF;
-    hdlc_write_frame_byte(stream, fcs & 0x00FF);
-    hdlc_write_frame_byte(stream, (fcs & 0xFF00) >> 8);
+    hdlc_append_frame_byte(buffer, &pos, fcs & 0x00FF);
+    hdlc_append_frame_byte(buffer, &pos, (fcs & 0xFF00) >> 8);
 
     // End of frame
-    fputc(0x7e, stream);
+    buffer[pos++] = 0x7E;
+
+    return pos;
+}
+
+
+int hdlc_write_frame(FILE *stream, uint16_t protocol, const uint8_t *data, int data_len)
+{
+    uint8_t write_buffer[PACKET_BUF_SIZE * 2];
+    int encoded_len;
+    int result;
+
+    encoded_len = hdlc_encode_frame(write_buffer, protocol, data, data_len);
+
+    // Write to output
+    result = fwrite(write_buffer, 1, encoded_len, stream);
     fflush(stream);
 
-    return 0;
+    return result;
 }
