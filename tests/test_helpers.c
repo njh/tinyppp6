@@ -1,33 +1,34 @@
 #include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
 
-
-FILE* open_fixture(const char *fixture_name)
+int open_fixture(const char *fixture_name)
 {
    char filename[FILENAME_MAX];
-   FILE* stream = NULL;
+   int fd;
    
-   snprintf(filename, FILENAME_MAX, "fixtures/%s.bin", fixture_name);
+   snprintf(filename, FILENAME_MAX, "./fixtures/%s.bin", fixture_name);
    
-   stream = fopen(filename, "rb");
-   if (!stream) {
+   fd = open(filename, O_RDONLY);
+   if (fd < 0) {
      perror("Failed to open fixture");
      exit(-1);
    }
 
-   return stream;
+   return fd;
 }
 
 int read_fixture(const char *fixture_name, uint8_t buffer[], int buffer_len) {
-   FILE* stream = open_fixture(fixture_name);
+   int fd = open_fixture(fixture_name);
    int result = 0;
    
-   result = fread(buffer, 1, buffer_len, stream);
+   result = read(fd, buffer, buffer_len);
    if (result <= 0) {
      perror("Failed to read fixture");
      exit(-1);
    }
    
-   fclose(stream);
+   close(fd);
 
    return result;
 }

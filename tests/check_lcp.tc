@@ -11,12 +11,12 @@ uint8_t ppp_frame[] = { 0x01, 0x02 };
 uint8_t buffer[PACKET_BUF_SIZE];
 
 // Generate a new frame
-FILE *stream = tmpfile();
-lcp_reject_protocol(stream, 0x8021, ppp_frame, sizeof(ppp_frame));
+int fd = fileno(tmpfile());
+lcp_reject_protocol(fd, 0x8021, ppp_frame, sizeof(ppp_frame));
 
 // Read the frame back in again
-rewind(stream);
-int len = hdlc_read_frame(stream, buffer);
+lseek(fd, 0, SEEK_SET); // Rewind to start of temporary file
+int len = hdlc_read_frame(fd, buffer);
 
 ck_assert_uint_eq(len, 14);
 ck_assert_uint_eq(hdlc_check_frame(buffer, len), 1);
@@ -34,12 +34,12 @@ ck_assert_mem_eq(
 uint8_t buffer[PACKET_BUF_SIZE];
 
 // Output a frame
-FILE *stream = tmpfile();
-lcp_send_conf_req(stream);
+int fd = fileno(tmpfile());
+lcp_send_conf_req(fd);
 
 // Read the frame back in again
-rewind(stream);
-int len = hdlc_read_frame(stream, buffer);
+lseek(fd, 0, SEEK_SET); // Rewind to start of temporary file
+int len = hdlc_read_frame(fd, buffer);
 
 ck_assert_uint_eq(len, 16);
 ck_assert_uint_eq(hdlc_check_frame(buffer, len), 1);
@@ -56,12 +56,12 @@ ck_assert_mem_eq(
 uint8_t buffer[PACKET_BUF_SIZE];
 
 // Output a frame
-FILE *stream = tmpfile();
-lcp_echo_reply(stream);
+int fd = fileno(tmpfile());
+lcp_echo_reply(fd);
 
 // Read the frame back in again
-rewind(stream);
-int len = hdlc_read_frame(stream, buffer);
+lseek(fd, 0, SEEK_SET); // Rewind to start of temporary file
+int len = hdlc_read_frame(fd, buffer);
 
 ck_assert_uint_eq(len, 14);
 ck_assert_uint_eq(hdlc_check_frame(buffer, len), 1);

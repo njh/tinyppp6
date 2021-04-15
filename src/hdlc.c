@@ -32,9 +32,8 @@ void hdlc_init()
 //  - negative number on error
 //  - 0 if nothing available
 //  - 1 or more if bytes are available
-int hdlc_bytes_available(FILE *stream)
+int hdlc_bytes_available(int fd)
 {
-    int fd = fileno(stream);
     fd_set rfds;
     struct timeval tv;
     int retval;
@@ -60,11 +59,10 @@ int hdlc_bytes_available(FILE *stream)
     return retval;
 }
 
-int hdlc_read_byte(FILE *stream)
+int hdlc_read_byte(int fd)
 {
     if (bytes_read <= 0) {
         // Fill up the read buffer
-        int fd = fileno(stream);
         bytes_read = read(fd, read_buffer, sizeof(read_buffer));
     }
 
@@ -85,13 +83,13 @@ int hdlc_read_byte(FILE *stream)
 }
 
 // This function is blocking
-int hdlc_read_frame(FILE *stream, uint8_t *buffer)
+int hdlc_read_frame(int fd, uint8_t *buffer)
 {
     int pos = 0;
     int in_escape = 0;
 
     do {
-        int chr = hdlc_read_byte(stream);
+        int chr = hdlc_read_byte(fd);
         if (chr == EOF) break;
 
         if (chr == 0x7e) {
@@ -211,7 +209,7 @@ int hdlc_encode_frame(uint8_t *buffer, uint16_t protocol, const uint8_t *data, i
 }
 
 
-int hdlc_write_frame(FILE *stream, uint16_t protocol, const uint8_t *data, int data_len)
+int hdlc_write_frame(int fd, uint16_t protocol, const uint8_t *data, int data_len)
 {
     uint8_t write_buffer[PACKET_BUF_SIZE * 2];
     int encoded_len;
@@ -220,8 +218,7 @@ int hdlc_write_frame(FILE *stream, uint16_t protocol, const uint8_t *data, int d
     encoded_len = hdlc_encode_frame(write_buffer, protocol, data, data_len);
 
     // Write to output
-    result = fwrite(write_buffer, 1, encoded_len, stream);
-    fflush(stream);
+    result = write(fd, write_buffer, encoded_len);
 
     return result;
 }

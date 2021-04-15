@@ -15,11 +15,11 @@ void lcp_init()
     our_magic = random();
 }
 
-void lcp_write_packet(FILE *stream, const uint8_t *buffer)
+void lcp_write_packet(int fd, const uint8_t *buffer)
 {
     int len = LCP_PACKET_LEN(buffer);
     // FIXME: check len isn't too long or too short
-    hdlc_write_frame(stream, PPP_PROTO_LCP, buffer, len);
+    hdlc_write_frame(fd, PPP_PROTO_LCP, buffer, len);
 }
 
 void lcp_append_buf(uint8_t *packet, uint8_t *buffer, uint16_t bufffer_len)
@@ -55,17 +55,17 @@ void lcp_append_option_uint32(uint8_t *packet, int id, uint32_t value)
     lcp_append_buf(packet, option, sizeof(option));
 }
 
-void lcp_handle_conf_req(FILE *stream, uint8_t *buffer)
+void lcp_handle_conf_req(int fd, uint8_t *buffer)
 {
     fprintf(stderr, "tinyppp6 send: Sending LCP Conf-Ack\n");
 
     // Change LCP code to from ConfReq to ConfAck
     BUF_SET_UINT8(buffer, 0, LCP_CONF_ACK);
 
-    lcp_write_packet(stream, buffer);
+    lcp_write_packet(fd, buffer);
 }
 
-void lcp_echo_reply(FILE *stream)
+void lcp_echo_reply(int fd)
 {
     uint8_t buffer[PACKET_BUF_SIZE];
 
@@ -76,10 +76,10 @@ void lcp_echo_reply(FILE *stream)
     BUF_SET_UINT16(buffer, 2, 8);   // Length
     BUF_SET_UINT32(buffer, 4, our_magic);
 
-    lcp_write_packet(stream, buffer);
+    lcp_write_packet(fd, buffer);
 }
 
-void lcp_handle_frame(FILE *stream, uint8_t *buffer, int buffer_len)
+void lcp_handle_frame(int fd, uint8_t *buffer, int buffer_len)
 {
     int code = BUF_GET_UINT8(buffer, 0);
 
@@ -89,11 +89,11 @@ void lcp_handle_frame(FILE *stream, uint8_t *buffer, int buffer_len)
 
     switch (code) {
         case LCP_CONF_REQ:
-            lcp_handle_conf_req(stream, buffer);
+            lcp_handle_conf_req(fd, buffer);
             break;
 
         case LCP_CONF_ACK:
-            ipv6cp_send_conf_req(stream);
+            ipv6cp_send_conf_req(fd);
             break;
 
         case LCP_CONF_NAK:
@@ -121,7 +121,7 @@ void lcp_handle_frame(FILE *stream, uint8_t *buffer, int buffer_len)
             break;
 
         case LCP_ECHO_REQ:
-            lcp_echo_reply(stream);
+            lcp_echo_reply(fd);
             break;
 
         case LCP_ECHO_REPLY:
@@ -138,7 +138,7 @@ void lcp_handle_frame(FILE *stream, uint8_t *buffer, int buffer_len)
     }
 }
 
-void lcp_send_conf_req(FILE *stream)
+void lcp_send_conf_req(int fd)
 {
     uint8_t buffer[PACKET_BUF_SIZE];
 
@@ -150,11 +150,11 @@ void lcp_send_conf_req(FILE *stream)
 
     lcp_append_option_uint32(buffer, LCP_OPTION_MAGIC_NUM, our_magic);
 
-    lcp_write_packet(stream, buffer);
+    lcp_write_packet(fd, buffer);
 }
 
 
-void lcp_reject_protocol(FILE *stream, uint16_t protocol, uint8_t *buffer, int len)
+void lcp_reject_protocol(int fd, uint16_t protocol, uint8_t *buffer, int len)
 {
     uint8_t replybuf[PACKET_BUF_SIZE];
     static uint8_t id = 1;
@@ -169,5 +169,5 @@ void lcp_reject_protocol(FILE *stream, uint16_t protocol, uint8_t *buffer, int l
     // FIXME: ensure length doesn't exceed the MRU
     lcp_append_buf(replybuf, buffer, len);
 
-    lcp_write_packet(stream, replybuf);
+    lcp_write_packet(fd, replybuf);
 }

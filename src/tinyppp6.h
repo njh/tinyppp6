@@ -42,18 +42,18 @@ uint16_t fcs16_calculate(const uint8_t *cp, int len);
 
 // frame.c
 void hdlc_init();
-int hdlc_bytes_available(FILE *stream);
-int hdlc_read_frame(FILE *stream, uint8_t *buffer);
+int hdlc_bytes_available(int fd);
+int hdlc_read_frame(int fd, uint8_t *buffer);
 int hdlc_check_frame(const uint8_t *buffer, int len);
 int hdlc_encode_frame(uint8_t *buffer, uint16_t protocol, const uint8_t *data, int data_len);
-int hdlc_write_frame(FILE *stream, uint16_t protocol, const uint8_t *buffer, int len);
+int hdlc_write_frame(int fd, uint16_t protocol, const uint8_t *buffer, int len);
 
 
 // ipv6.c
-void ipv6_handle_packet(FILE *stream, uint8_t *buffer, int buffer_len);
-void ipv6_handle_icmpv6(FILE *stream, uint8_t *buffer, int buffer_len);
-void ipv6_handle_udp(FILE *stream, uint8_t *buffer, int buffer_len);
-void ipv6_handle_tcp(FILE *stream, uint8_t *buffer, int buffer_len);
+void ipv6_handle_packet(int fd, uint8_t *buffer, int buffer_len);
+void ipv6_handle_icmpv6(int fd, uint8_t *buffer, int buffer_len);
+void ipv6_handle_udp(int fd, uint8_t *buffer, int buffer_len);
+void ipv6_handle_tcp(int fd, uint8_t *buffer, int buffer_len);
 uint16_t ipv6_calculate_checksum(uint8_t *buffer, int buffer_len);
 
 enum ip_protocol {
@@ -76,8 +76,8 @@ enum icmpv6_type {
 
 // ipv6cp.c
 void ipv6cp_init();
-void ipv6cp_handle_frame(FILE *stream, uint8_t *buffer, int buffer_len);
-void ipv6cp_send_conf_req(FILE *stream);
+void ipv6cp_handle_frame(int fd, uint8_t *buffer, int buffer_len);
+void ipv6cp_send_conf_req(int fd);
 
 enum {
     IPV6CP_CONF_REQ = 1,
@@ -92,10 +92,10 @@ enum {
 
 // lcp.c
 void lcp_init();
-void lcp_handle_frame(FILE *stream, uint8_t *buffer, int buffer_len);
-void lcp_echo_reply(FILE *stream);
-void lcp_send_conf_req(FILE *stream);
-void lcp_reject_protocol(FILE *stream, uint16_t protocol, uint8_t *buffer, int len);
+void lcp_handle_frame(int fd, uint8_t *buffer, int buffer_len);
+void lcp_echo_reply(int fd);
+void lcp_send_conf_req(int fd);
+void lcp_reject_protocol(int fd, uint16_t protocol, uint8_t *buffer, int len);
 
 void lcp_append_buf(uint8_t *packet, uint8_t *buffer, uint16_t bufffer_len);
 void lcp_append_option_uint16(uint8_t *packet, int id, uint16_t value);

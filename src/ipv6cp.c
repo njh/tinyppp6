@@ -16,14 +16,14 @@ void ipv6cp_init()
 {
 }
 
-void ipv6cp_write_packet(FILE *stream, const uint8_t *buffer)
+void ipv6cp_write_packet(int fd, const uint8_t *buffer)
 {
     int len = BUF_GET_UINT16(buffer, 2);
     // FIXME: check len isn't too long or too short
-    hdlc_write_frame(stream, PPP_PROTO_IPV6CP, buffer, len);
+    hdlc_write_frame(fd, PPP_PROTO_IPV6CP, buffer, len);
 }
 
-void ipv6cp_reply_conf_req(FILE *stream, uint8_t *buffer)
+void ipv6cp_reply_conf_req(int fd, uint8_t *buffer)
 {
     // FIXME: check if there are any options we don't like
 
@@ -46,10 +46,10 @@ void ipv6cp_reply_conf_req(FILE *stream, uint8_t *buffer)
 
     // FIXME: Store their interface ID
 
-    ipv6cp_write_packet(stream, buffer);
+    ipv6cp_write_packet(fd, buffer);
 }
 
-void ipv6cp_handle_frame(FILE *stream, uint8_t *buffer, int buffer_len)
+void ipv6cp_handle_frame(int fd, uint8_t *buffer, int buffer_len)
 {
     int code = BUF_GET_UINT8(buffer, 0);
     int id = BUF_GET_UINT8(buffer, 1);
@@ -64,7 +64,7 @@ void ipv6cp_handle_frame(FILE *stream, uint8_t *buffer, int buffer_len)
     switch (code) {
         case IPV6CP_CONF_REQ:
             fprintf(stderr, "tinyppp6 recv: IPV6CP Configure-Request\n");
-            ipv6cp_reply_conf_req(stream, buffer);
+            ipv6cp_reply_conf_req(fd, buffer);
             break;
 
         case IPV6CP_CONF_ACK:
@@ -98,7 +98,7 @@ void ipv6cp_handle_frame(FILE *stream, uint8_t *buffer, int buffer_len)
     }
 }
 
-void ipv6cp_send_conf_req(FILE *stream)
+void ipv6cp_send_conf_req(int fd)
 {
     uint8_t buffer[PACKET_BUF_SIZE];
 
@@ -114,5 +114,5 @@ void ipv6cp_send_conf_req(FILE *stream)
     // Copy in the interface identifier
     memcpy(&buffer[6], our_interface_id, 8);
 
-    ipv6cp_write_packet(stream, buffer);
+    ipv6cp_write_packet(fd, buffer);
 }

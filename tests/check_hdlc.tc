@@ -6,10 +6,10 @@
 
 
 #test check_read_frame
-FILE *stream = open_fixture("frame_encoded");
+int fd = open_fixture("frame_encoded");
 uint8_t buffer[PACKET_BUF_SIZE];
 hdlc_init();
-int len = hdlc_read_frame(stream, buffer);
+int len = hdlc_read_frame(fd, buffer);
 ck_assert_uint_eq(len, 26);
 ck_assert_uint_eq(buffer[0], 0xff);
 ck_assert_uint_eq(buffer[1], 0x03);
@@ -18,10 +18,10 @@ ck_assert_uint_eq(buffer[3], 0x21);
 
 
 #test check_read_frame_empty
-FILE *stream = open_fixture("frame_empty");
+int fd = open_fixture("frame_empty");
 uint8_t buffer[PACKET_BUF_SIZE];
 hdlc_init();
-int len = hdlc_read_frame(stream, buffer);
+int len = hdlc_read_frame(fd, buffer);
 ck_assert_uint_eq(len, 0);
 
 
@@ -47,12 +47,14 @@ ck_assert_mem_eq(
 uint8_t ppp_frame[] = { 0x01, 0xFF, 0x7D, 0x7E };
 uint8_t buffer[PACKET_BUF_SIZE];
 
-FILE *stream = tmpfile();
-hdlc_write_frame(stream, 0xC021, ppp_frame, sizeof(ppp_frame));
-ck_assert_uint_eq(ftell(stream), 16);
+int fd = fileno(tmpfile());
+hdlc_write_frame(fd, 0xC021, ppp_frame, sizeof(ppp_frame));
+int pos = lseek(fd, 0, SEEK_CUR);
+ck_assert_uint_eq(pos, 16);
 
-rewind(stream);
-fread(buffer, 1, 16, stream);
+lseek(fd, 0, SEEK_SET); // Rewind to start of temporary file
+int bytes = read(fd, buffer, 16);
+ck_assert_uint_eq(bytes, 16);
 ck_assert_mem_eq(
     buffer, "\x7E\xFF\x7D\x23\xC0\x21\x7D\x21\xFF\x7D\x5D\x7D\x5E\x9F\xB5\x7E", 16
 );

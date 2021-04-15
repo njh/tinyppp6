@@ -6,7 +6,7 @@
 #include "tinyppp6.h"
 
 
-void ipv6_handle_packet(FILE *stream, uint8_t *buffer, int buffer_len)
+void ipv6_handle_packet(int fd, uint8_t *buffer, int buffer_len)
 {
     int vers = (BUF_GET_UINT8(buffer, 0) & 0xF0) >> 4;
     int len = BUF_GET_UINT16(buffer, 4);
@@ -27,15 +27,15 @@ void ipv6_handle_packet(FILE *stream, uint8_t *buffer, int buffer_len)
 
     switch (proto) {
         case PROTO_ICMPV6:
-            ipv6_handle_icmpv6(stream, buffer, buffer_len);
+            ipv6_handle_icmpv6(fd, buffer, buffer_len);
             break;
 
         case PROTO_UDP:
-            ipv6_handle_udp(stream, buffer, buffer_len);
+            ipv6_handle_udp(fd, buffer, buffer_len);
             break;
 
         case PROTO_TCP:
-            ipv6_handle_tcp(stream, buffer, buffer_len);
+            ipv6_handle_tcp(fd, buffer, buffer_len);
             break;
 
         default:
@@ -44,7 +44,7 @@ void ipv6_handle_packet(FILE *stream, uint8_t *buffer, int buffer_len)
     }
 }
 
-void icmpv6_echo_reply(FILE *stream, uint8_t *buffer, int buffer_len)
+void icmpv6_echo_reply(int fd, uint8_t *buffer, int buffer_len)
 {
     uint8_t replybuf[PACKET_BUF_SIZE];
 
@@ -73,10 +73,10 @@ void icmpv6_echo_reply(FILE *stream, uint8_t *buffer, int buffer_len)
     // Calculate ICMPv6 Checksum
     BUF_SET_UINT16(replybuf, 42, ipv6_calculate_checksum(replybuf, buffer_len));
 
-    hdlc_write_frame(stream, PPP_PROTO_IPV6, replybuf, buffer_len);
+    hdlc_write_frame(fd, PPP_PROTO_IPV6, replybuf, buffer_len);
 }
 
-void ipv6_handle_icmpv6(FILE *stream, uint8_t *buffer, int buffer_len)
+void ipv6_handle_icmpv6(int fd, uint8_t *buffer, int buffer_len)
 {
     uint8_t type = BUF_GET_UINT8(buffer, 40);
     uint8_t code = BUF_GET_UINT8(buffer, 41);
@@ -88,7 +88,7 @@ void ipv6_handle_icmpv6(FILE *stream, uint8_t *buffer, int buffer_len)
             return;
 
         case ICMPV6_TYPE_ECHO:
-            icmpv6_echo_reply(stream, buffer, buffer_len);
+            icmpv6_echo_reply(fd, buffer, buffer_len);
             return;
 
         case ICMPV6_TYPE_RA:
@@ -103,7 +103,7 @@ void ipv6_handle_icmpv6(FILE *stream, uint8_t *buffer, int buffer_len)
     }
 }
 
-void ipv6_handle_udp(FILE *stream, uint8_t *buffer, int buffer_len)
+void ipv6_handle_udp(int fd, uint8_t *buffer, int buffer_len)
 {
     uint16_t src_port = BUF_GET_UINT16(buffer, 40);
     uint16_t dest_port = BUF_GET_UINT16(buffer, 42);
@@ -120,7 +120,7 @@ void ipv6_handle_udp(FILE *stream, uint8_t *buffer, int buffer_len)
     }
 }
 
-void ipv6_handle_tcp(FILE *stream, uint8_t *buffer, int buffer_len)
+void ipv6_handle_tcp(int fd, uint8_t *buffer, int buffer_len)
 {
     fprintf(stderr, "tinyppp6 recv: TCP (len=%d)\n", buffer_len);
     // FIXME: we don't support TCP, send ICMPv6 back
