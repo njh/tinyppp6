@@ -131,4 +131,9 @@ enum {
 };
 
 
+// serial.c
+
+int serial_open(const char *device_path);
+
+
 #endif

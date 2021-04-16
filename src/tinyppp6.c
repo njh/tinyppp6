@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 
 #include "tinyppp6.h"
 
@@ -34,7 +35,11 @@ void handle_frame(int fd, uint8_t *buffer, int len)
     fprintf(stderr, "\n");
 }
 
-
+void usage()
+{
+    fprintf(stderr, "Usage: tinyppp6 [<serial device>]\n");
+    exit(EXIT_FAILURE);
+}
 
 int main(int argc, char **argv)
 {
@@ -43,6 +48,16 @@ int main(int argc, char **argv)
 
     // FIXME: Seed the random number generator
     // FIXME: how to seed? srandom();
+
+    // Check command line arguments
+    if (argc == 1) {
+        input = STDIN_FILENO;
+        output = STDOUT_FILENO;
+    } else if (argc == 2 && strlen(argv[1]) > 1 && argv[1][0] != '-') {
+        input = output = serial_open(argv[1]);
+    } else {
+        usage();
+    }
 
     hdlc_init();
     lcp_init();
