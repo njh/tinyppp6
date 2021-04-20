@@ -4,6 +4,7 @@
 #include "hdlc.c"
 #include "lcp.c"
 #include "ipv6cp.c"
+#include "test_helpers.c"
 
 
 #test check_lcp_reject_protocol
@@ -136,3 +137,7 @@ ck_assert_mem_eq(
     "\x12\x34\x56\x78",
     10
 );
+
+
+#main-pre
+tcase_add_checked_fixture(tc1_1, redirect_stderr, NULL);

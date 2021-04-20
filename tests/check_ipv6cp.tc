@@ -3,6 +3,7 @@
 #include "fcs.c"
 #include "hdlc.c"
 #include "ipv6cp.c"
+#include "test_helpers.c"
 
 
 #test check_ipv6cp_send_conf_req
@@ -26,3 +27,7 @@ ck_assert_mem_eq(
     "\x0f\x76",
     len
 );
+
+
+#main-pre
+tcase_add_checked_fixture(tc1_1, redirect_stderr, NULL);

@@ -2,6 +2,14 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+void redirect_stderr()
+{
+    int err = open("/dev/null", O_RDWR, 0600);
+    if (err == -1) { perror("opening /dev/null"); }
+
+    if (dup2(err, STDERR_FILENO) == -1) { perror("cannot redirect stderr"); }
+}
+
 int open_fixture(const char *fixture_name)
 {
    char filename[FILENAME_MAX];

@@ -81,3 +81,7 @@ ck_assert_uint_eq(hdlc_check_frame(ppp_frame, size), 0);
 uint8_t ppp_frame[PACKET_BUF_SIZE];
 int size = read_fixture("frame_wrong_fcs", ppp_frame, PACKET_BUF_SIZE);
 ck_assert_uint_eq(hdlc_check_frame(ppp_frame, size), 0);
+
+
+#main-pre
+tcase_add_checked_fixture(tc1_1, redirect_stderr, NULL);
